@@ -1,0 +1,884 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#f2f3f5"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><style>:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;padding:0}img{max-width:100%}[hidden]{display:none!important}</style></head><body>
+<title>Trinkwürfel</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Manrope:wght@500;700;800&display=swap">
+<style>
+/* Layout: one column, full-bleed. Während des Spiels färbt sich der ganze Screen in der Farbe der Person, die dran ist. Start und Endstand auf hellem Papier. Bewusst ein eigenes Farbschema, unabhängig vom Systemmodus. */
+:root{
+  --paper:#f2f3f5;
+  --ink:#14151b;
+  --ink-soft:#5f6371;
+  --drink:#ffc84a;
+  --drink-deep:#f2960f;
+  --foam:#fffaf0;
+  --pc:#2b50e8;
+  --bg:var(--paper);
+  --fg:var(--ink);
+  --soft:var(--ink-soft);
+  --chip:#ffffff;
+  --line:#dcdee4;
+  --btn-bg:var(--ink);
+  --btn-fg:#ffffff;
+  --display:"Bricolage Grotesque","Arial Narrow",system-ui,sans-serif;
+  --body:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:light;
+}
+body.color{
+  --bg:var(--pc);
+  --fg:#ffffff;
+  --soft:rgba(255,255,255,.78);
+  --chip:rgba(255,255,255,.16);
+  --line:rgba(255,255,255,.34);
+  --btn-bg:#ffffff;
+  --btn-fg:var(--pc);
+  color-scheme:dark;
+}
+html,body{height:100%}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.45;transition:background-color .5s ease;-webkit-tap-highlight-color:transparent}
+.app{
+  max-width:520px;margin:0 auto;box-sizing:border-box;min-height:100%;
+  padding-left:max(18px, env(safe-area-inset-left, 0px));
+  padding-right:max(18px, env(safe-area-inset-right, 0px));
+  padding-block:18px 28px;
+  display:flex;flex-direction:column;gap:22px;
+}
+h1,h2,h3{font-family:var(--display);font-weight:800;margin:0;letter-spacing:-.025em;text-wrap:balance;line-height:.95}
+p{margin:0}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none;padding:0}
+:focus-visible{outline:3px solid currentColor;outline-offset:3px}
+.eyebrow{font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--soft)}
+.soft{color:var(--soft)}
+
+/* Buttons */
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:58px;padding:0 22px;border-radius:999px;box-sizing:border-box;
+  background:var(--btn-bg);color:var(--btn-fg);font-weight:800;font-size:17px;transition:transform .1s ease, opacity .2s, background-color .5s, color .5s}
+.btn:active{transform:scale(.97)}
+.btn .sub{font-weight:600;opacity:.7}
+.btn.alt{background:transparent;color:var(--fg);box-shadow:inset 0 0 0 2px var(--line)}
+.btn[disabled]{opacity:.35;pointer-events:none}
+.btn svg{width:20px;height:20px;stroke:currentColor}
+.stack{display:flex;flex-direction:column;gap:10px}
+.ib{width:44px;height:44px;border-radius:50%;background:var(--chip);display:grid;place-items:center;flex:none;transition:background-color .5s}
+.ib svg{width:21px;height:21px;stroke:var(--fg)}
+.ib[disabled]{opacity:.3;pointer-events:none}
+
+/* Glasses */
+.table{display:grid;grid-template-columns:repeat(3,1fr);gap:6px 8px}
+.g{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0}
+.g svg{width:68%;max-width:84px;height:auto;overflow:visible;display:block}
+.g .shape{fill:rgba(255,255,255,.12);stroke:var(--fg);stroke-width:2.6;stroke-linejoin:round;transition:stroke .5s}
+.g .deco{fill:none;stroke:var(--fg);stroke-width:2.6;stroke-linecap:round;transition:stroke .5s}
+.g .base{fill:var(--fg);transition:fill .5s}
+.g .liq{fill:var(--drink);transform-box:fill-box;transform-origin:50% 100%;transform:scaleY(0);transition:transform .7s cubic-bezier(.25,1.5,.45,1)}
+.g .liq2{fill:var(--drink-deep);opacity:.5;transform-box:fill-box;transform-origin:50% 100%;transform:scaleY(0);transition:transform .75s cubic-bezier(.25,1.5,.45,1) .05s}
+.g .foam{fill:var(--foam);opacity:0;transition:opacity .3s .4s}
+.g .shine{stroke:rgba(255,255,255,.55);stroke-width:2.6;stroke-linecap:round;fill:none}
+.g.full .liq,.g.full .liq2{transform:scaleY(1)}
+.g.full .foam{opacity:1}
+.g .gn{font-family:var(--display);font-weight:800;font-size:22px;line-height:1;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;transition:background-color .2s,color .2s}
+.g .gl{font-size:12px;font-weight:700;color:var(--soft);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.g.hit .gn{background:#fff;color:var(--pc)}
+.g.hit-fill svg{animation:bob .7s ease}
+.g.hit-drink svg{animation:shake .55s ease 2}
+@keyframes bob{40%{transform:translateY(-8px) scale(1.06)}}
+@keyframes shake{20%{transform:rotate(-9deg)}40%{transform:rotate(8deg)}60%{transform:rotate(-6deg)}80%{transform:rotate(4deg)}}
+
+/* Intro */
+.hero{display:flex;flex-direction:column;gap:12px;padding-top:18px}
+.hero h1{font-size:clamp(56px,17vw,86px)}
+.hero p{font-size:17px;color:var(--soft);max-width:30ch}
+.lineup{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;padding:8px 0 4px}
+.lineup .g .gn{font-size:16px;width:auto;height:auto}
+.lineup .g svg{width:86%}
+.section{display:flex;flex-direction:column;gap:2px}
+.section>.eyebrow{margin-bottom:8px}
+.grow{display:grid;grid-template-columns:28px 1fr;gap:8px 12px;align-items:center;padding:12px 0;border-top:1px solid var(--line)}
+.grow .num{font-family:var(--display);font-weight:800;font-size:22px}
+.seg{display:flex;background:#e4e6eb;border-radius:999px;padding:3px}
+.seg button{flex:1;min-height:36px;border-radius:999px;font-size:14px;font-weight:700;color:var(--ink-soft);transition:background-color .2s,color .2s}
+.seg button[aria-pressed="true"]{background:var(--ink);color:#fff}
+.field{width:100%;box-sizing:border-box;min-height:44px;padding:0 14px;border-radius:12px;border:1.5px solid var(--line);background:#fff;color:var(--ink)}
+.field::placeholder{color:#9a9eaa}
+.field:focus{outline:none;border-color:var(--ink)}
+.grow .field{grid-column:2}
+details.more{border-top:1px solid var(--line);padding-top:14px}
+details.more summary{list-style:none;cursor:pointer;font-weight:800;display:flex;justify-content:space-between;align-items:center}
+details.more summary::-webkit-details-marker{display:none}
+details.more summary::after{content:"";width:10px;height:10px;border-right:2.5px solid currentColor;border-bottom:2.5px solid currentColor;transform:rotate(45deg) translateY(-3px);transition:transform .2s}
+details.more[open] summary::after{transform:rotate(-135deg)}
+.rules{margin:12px 0 0;padding-left:18px;display:flex;flex-direction:column;gap:8px;color:var(--soft)}
+.rules b{color:var(--fg)}
+.note{font-size:13px;color:var(--soft);text-align:center}
+
+/* Avatars */
+.av{position:relative;flex:none;border-radius:50%;display:grid;place-items:center;font-family:var(--display);font-weight:800;color:#fff;background:var(--c);box-shadow:0 0 0 2.5px rgba(255,255,255,.9);overflow:hidden}
+.av img{width:100%;height:100%;object-fit:cover;display:block}
+.av-s{width:38px;height:38px;font-size:17px}
+.av-m{width:50px;height:50px;font-size:22px}
+.av-l{width:128px;height:128px;font-size:52px}
+
+/* Join */
+.join-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.join-head h1{font-size:clamp(46px,14vw,64px);margin-top:6px}
+.handoff{font-weight:700;font-size:15px;background:rgba(0,0,0,.16);border-radius:14px;padding:12px 14px}
+.selfie{width:156px;height:156px;border-radius:50%;margin:0 auto;display:grid;place-items:center;overflow:hidden;border:2.5px dashed rgba(255,255,255,.7);color:#fff;font-weight:700;font-size:14px;transition:transform .15s}
+.selfie:active{transform:scale(.96)}
+.selfie img{width:100%;height:100%;object-fit:cover}
+.selfie svg{width:40px;height:40px;stroke:#fff;display:block;margin:0 auto 6px}
+.name-input{min-height:60px;border-radius:999px;border:0;background:#fff;color:var(--ink);font-size:22px;font-weight:800;text-align:center;font-family:var(--body)}
+.name-input:focus{outline:3px solid rgba(255,255,255,.6);outline-offset:3px}
+.seated{display:flex;flex-wrap:wrap;gap:12px 10px}
+.seat{display:flex;flex-direction:column;align-items:center;gap:6px;width:56px}
+.seat span{font-size:12px;font-weight:700;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* Game */
+.top{display:flex;align-items:center;gap:12px}
+.top .who{flex:1;min-width:0}
+.top .name{font-family:var(--display);font-weight:800;font-size:clamp(28px,8vw,36px);line-height:1;letter-spacing:-.02em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.top .icons{display:flex;gap:6px}
+.stage{display:flex;flex-direction:column;align-items:center;gap:16px;padding-top:4px}
+.die{width:104px;height:104px;border-radius:28px;background:#fff;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);padding:17px;box-sizing:border-box;gap:5px;box-shadow:0 10px 0 rgba(0,0,0,.16),0 18px 30px rgba(0,0,0,.18)}
+.die .pip{border-radius:50%;margin:2px}
+.die .pip.on{background:var(--pc);transition:background-color .5s}
+.die.idle{cursor:pointer;animation:breathe 2.4s ease-in-out infinite}
+.die.rolling{animation:tumble .7s cubic-bezier(.3,.7,.35,1)}
+@keyframes breathe{50%{transform:translateY(-5px) rotate(-3deg)}}
+@keyframes tumble{0%{transform:none}25%{transform:translateY(-44px) rotate(-150deg) scale(.86)}55%{transform:translateY(-8px) rotate(-290deg) scale(1.04)}75%{transform:translateY(-16px) rotate(-345deg)}100%{transform:rotate(-360deg)}}
+.verdict{text-align:center;display:flex;flex-direction:column;align-items:center;gap:6px;min-height:84px;justify-content:center}
+.verdict .word{font-family:var(--display);font-weight:800;font-size:clamp(46px,14vw,66px);line-height:.9;letter-spacing:-.03em;animation:pop .45s cubic-bezier(.2,1.6,.4,1)}
+.verdict .line{font-weight:700;font-size:16px;color:var(--soft)}
+.streak{background:#fff;color:var(--pc);font-weight:800;font-size:13px;border-radius:999px;padding:4px 12px;animation:pop .45s cubic-bezier(.2,1.6,.4,1) .1s both}
+@keyframes pop{from{transform:scale(.6);opacity:0}}
+.actions{width:100%;display:flex;flex-direction:column;gap:10px}
+.strip{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;padding:6px 2px 2px;margin:0 -2px}
+.strip::-webkit-scrollbar{display:none}
+.pl{flex:none;width:62px;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}
+.pl .av{box-shadow:0 0 0 2px rgba(255,255,255,.35)}
+.pl.cur .av{box-shadow:0 0 0 3px #fff}
+.pl .cnt{position:absolute}
+.pl .wrap{position:relative}
+.pl .badge{position:absolute;right:-6px;bottom:-4px;min-width:22px;height:22px;padding:0 5px;box-sizing:border-box;border-radius:999px;background:#fff;color:var(--ink);font-weight:800;font-size:12px;display:grid;place-items:center;font-variant-numeric:tabular-nums}
+.pl .nm{font-size:12px;font-weight:700;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pl.out{opacity:.45}
+.pl.out .av{filter:grayscale(1)}
+.flash{position:fixed;inset:0;background:#000;pointer-events:none;opacity:0;z-index:5}
+.flash.on{animation:flash .6s ease}
+@keyframes flash{25%{opacity:.22}}
+
+/* Sheet */
+.overlay{position:fixed;inset:0;z-index:20;background:rgba(10,11,16,.5);display:flex;align-items:flex-end;justify-content:center}
+.sheet{--fg:var(--ink);--soft:var(--ink-soft);--line:#e3e5ea;--chip:#eef0f3;--btn-bg:var(--ink);--btn-fg:#fff;
+  color:var(--ink);background:#fff;width:100%;max-width:520px;max-height:86%;overflow-y:auto;border-radius:28px 28px 0 0;box-sizing:border-box;
+  padding:22px max(18px, env(safe-area-inset-right, 0px)) calc(24px + env(safe-area-inset-bottom, 0px)) max(18px, env(safe-area-inset-left, 0px));
+  display:flex;flex-direction:column;gap:16px;animation:up .25s cubic-bezier(.2,1,.4,1)}
+@keyframes up{from{transform:translateY(60px);opacity:0}}
+.sheet-head{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.sheet-head h3{font-size:28px}
+.rows{display:flex;flex-direction:column}
+.r{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
+.r:last-child{border-bottom:0}
+.r .rk{font-family:var(--display);font-weight:800;width:22px;color:var(--soft)}
+.r .nm{flex:1;min-width:0;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.r .nm small{display:block;color:var(--soft);font-weight:600;font-size:12px}
+.r .val{font-family:var(--display);font-weight:800;font-size:26px;font-variant-numeric:tabular-nums}
+.hist .r{font-size:14px;font-weight:600}
+.hist .dot{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:14px;flex:none}
+.hist .dot.d{background:var(--drink);color:var(--ink)}
+.hist .dot.f{background:#eef0f3}
+.stats3{display:grid;grid-template-columns:repeat(3,1fr);text-align:center}
+.stats3 b{display:block;font-family:var(--display);font-weight:800;font-size:36px;line-height:1}
+.stats3 span{font-size:12px;font-weight:700;color:var(--soft)}
+.sheet .av{box-shadow:none}
+.sheet .field{background:#f5f6f8}
+
+/* End */
+.awards{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.award{background:#fff;border-radius:22px;padding:16px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.award .who{display:flex;align-items:center;gap:8px;font-weight:800;min-width:0}
+.award .who span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.award .val{font-family:var(--display);font-weight:800;font-size:30px;line-height:1}
+.award .av{box-shadow:none}
+.panel{background:#fff;border-radius:22px;padding:6px 16px}
+.panel .av{box-shadow:none}
+.gallery{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.gallery figure{margin:0;background:#fff;border-radius:20px;overflow:hidden}
+.gallery img{width:100%;max-width:100%;aspect-ratio:3/4;object-fit:cover;display:block}
+.gallery figcaption{padding:10px 12px;font-weight:800;font-size:14px}
+.gallery figcaption small{display:block;font-weight:600;color:var(--soft)}
+.empty{color:var(--soft);font-size:14px}
+.gallery figcaption{display:flex;align-items:center;gap:8px}
+.gallery figcaption .cap{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gallery .save{width:36px;height:36px;border-radius:50%;background:#eef0f3;display:grid;place-items:center;flex:none}
+.gallery .save svg{width:18px;height:18px;stroke:var(--ink)}
+.dl-msg{font-size:14px;font-weight:700;text-align:center;color:var(--soft)}
+.credit{margin:auto auto 0;padding-top:28px;display:flex;align-items:center;justify-content:center;gap:7px;color:var(--soft)}
+.credit svg{width:16px;height:20px;color:var(--fg);margin-right:1px;transform:translateY(-1px)}
+.credit span{font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase}
+.credit b{font-family:var(--display);font-weight:800;font-size:17px;letter-spacing:-.01em;color:var(--fg);box-shadow:inset 0 -5px 0 var(--drink);line-height:1.1}
+
+/* Spielbildschirm passt immer auf einen Screen, ohne Scrollen */
+html:has(body.lock), body.lock{overflow:hidden;overscroll-behavior:none}
+.app.game{
+  height:calc(100vh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+  height:calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+  min-height:0;overflow:hidden;padding-block:12px 10px;gap:clamp(8px,1.6dvh,18px)
+}
+.app.game .top,.app.game .table,.app.game .strip{flex:none}
+.app.join{
+  height:calc(100vh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+  height:calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+  min-height:0;overflow:hidden;padding-block:14px 12px;gap:clamp(10px,2dvh,22px)
+}
+.app.join>*{flex:none}
+.app.join .join-head h1{font-size:clamp(36px,7.5dvh,64px)}
+.app.join .handoff{font-size:14px;padding:10px 12px}
+.app.join #join-form{gap:clamp(10px,1.8dvh,16px)!important}
+.app.join .selfie{width:clamp(84px,17dvh,156px);height:clamp(84px,17dvh,156px)}
+.app.join .selfie svg{width:clamp(26px,4.5dvh,40px);height:clamp(26px,4.5dvh,40px)}
+.app.join .name-input{min-height:clamp(48px,7dvh,60px);font-size:clamp(18px,2.8dvh,22px)}
+.app.join .btn{min-height:clamp(48px,6.6dvh,58px)}
+.app.join .seated{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding:3px 3px 2px;margin:-3px}
+.app.join .seated::-webkit-scrollbar{display:none}
+.app.join .seat{flex:none}
+.app.join .seat .av{width:clamp(38px,6dvh,50px);height:clamp(38px,6dvh,50px)}
+.app.join .bottom{margin-top:auto}
+@media (max-height:640px){ .app.join .bottom .note{display:none} }
+.app.game .g svg{width:auto;height:clamp(40px,10dvh,86px);max-width:84px}
+.app.game .g .gn{width:clamp(26px,4dvh,34px);height:clamp(26px,4dvh,34px);font-size:clamp(17px,2.6dvh,22px)}
+.app.game .g .gl{font-size:11px}
+.app.game .stage{flex:1;min-height:0;justify-content:center;gap:clamp(8px,1.6dvh,16px);padding-top:0}
+.app.game .die{width:clamp(64px,11dvh,104px);height:clamp(64px,11dvh,104px);padding:clamp(10px,1.8dvh,17px);border-radius:clamp(18px,3dvh,28px)}
+.app.game .verdict{min-height:0;gap:4px}
+.app.game .verdict .word{font-size:clamp(34px,7dvh,64px)}
+.app.game .btn{min-height:clamp(48px,6.6dvh,58px)}
+.row2{display:flex;gap:10px;width:100%}
+.row2 .btn:first-child{flex:1;font-size:16px;padding:0 16px;white-space:nowrap}
+.btn.icon{width:clamp(48px,6.6dvh,58px);flex:none;padding:0;position:relative}
+.btn.icon svg{width:22px;height:22px}
+.btn.icon .pcount{position:absolute;top:-4px;right:-4px;min-width:20px;height:20px;border-radius:999px;background:#fff;color:var(--pc);font-size:12px;display:grid;place-items:center}
+
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<div class="flash" id="flash"></div>
+<div class="app" id="app"></div>
+<div id="sheet-root"></div>
+
+<script>
+(() => {
+"use strict";
+
+/* ---------- Konstanten & Helfer ---------- */
+const TYPES = { glas:"Glas", shot:"Shot", bier:"Bier" };
+const FACES = {1:[4],2:[0,8],3:[0,4,8],4:[0,2,6,8],5:[0,2,4,6,8],6:[0,2,3,5,6,8]};
+const PALETTE = ["#2b50e8","#e23d28","#0e8a5c","#7a35e8","#d0287a","#087f99","#c25a00","#3a3f9e"];
+const SHAPES = {
+  glas:{ body:"M7 6 H57 L51 76 H13 Z", liq:[0,22,64,60], foam:null, extra:"", shine:"M15 16 L18 64" },
+  shot:{ body:"M17 34 H47 L44 72 H20 Z", liq:[0,42,64,34], foam:null, extra:'<rect class="base" x="18" y="71" width="28" height="6" rx="2"/>', shine:"M23 40 L24.5 62" },
+  bier:{ body:"M11 10 H45 V72 Q45 77 40 77 H16 Q11 77 11 72 Z", liq:[0,22,64,60], foam:[0,16,64,9], extra:'<path class="deco" d="M45 24 H52 Q58 24 58 30 V50 Q58 56 52 56 H45"/>', shine:"M18 20 V64" }
+};
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
+const uid = () => Math.random().toString(36).slice(2, 10);
+const LS = {
+  get(k){ try { return localStorage.getItem(k); } catch(e){ return null; } },
+  set(k,v){ try { localStorage.setItem(k,v); return true; } catch(e){ return false; } },
+  del(k){ try { localStorage.removeItem(k); } catch(e){} }
+};
+function rnd6(){
+  try { const a = new Uint8Array(1); do { crypto.getRandomValues(a); } while (a[0] >= 252); return (a[0] % 6) + 1; }
+  catch(e){ return Math.floor(Math.random()*6) + 1; }
+}
+function buzz(p){ try { navigator.vibrate && navigator.vibrate(p); } catch(e){} }
+const reduced = (() => { try { return matchMedia("(prefers-reduced-motion: reduce)").matches; } catch(e){ return false; } })();
+const svgI = (d, extra) => `<svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" ${extra||""}>${d}</svg>`;
+const ICON = {
+  board: svgI('<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/>'),
+  undo:  svgI('<path d="M9 14 4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-3"/>'),
+  menu:  svgI('<path d="M4 7h16M4 12h16M4 17h10"/>'),
+  close: svgI('<path d="M6 6l12 12M18 6 6 18"/>'),
+  cam:   svgI('<path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>'),
+  down:  svgI('<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>')
+};
+
+/* ---------- Downloads ---------- */
+let dl = null;
+(async () => {
+  try { dl = window.claude && window.claude.use ? await window.claude.use("downloads") : null; } catch(e){ dl = null; }
+  if (dl && state.phase === "end") render();
+})();
+const slug = s => String(s || "").normalize("NFKD").replace(/[̀-ͯ]/g, "").replace(/[^A-Za-z0-9]+/g, "-").replace(/^-|-$/g, "") || "x";
+function dataToBlob(d){
+  const [head, b64] = d.split(",");
+  const bin = atob(b64); const arr = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+  return new Blob([arr], { type: (head.match(/data:([^;]+)/) || [])[1] || "image/jpeg" });
+}
+function allPhotos(){
+  const out = [];
+  state.proofs.forEach((x, i) => {
+    if (!photos[x.photo]) return;
+    const q = P(x.pid);
+    out.push({ id:x.photo, name:`Beweisfotos/${String(i + 1).padStart(2, "0")}_${slug(q && q.name)}_Glas-${x.glass}.jpg` });
+  });
+  state.players.forEach(p => { if (p.photo && photos[p.photo]) out.push({ id:p.photo, name:`Selfies/${slug(p.name)}.jpg` }); });
+  return out;
+}
+function dlMsg(t){ const m = document.getElementById("dl-msg"); if (m) m.textContent = t; }
+function dlError(e){
+  const c = e && e.code;
+  if (c === "declined") return dlMsg("");
+  if (c === "rate_limited") return dlMsg("Es ist schon ein Speichern-Fenster offen.");
+  dlMsg("Speichern hat nicht geklappt. Foto gedrückt halten und „Bild sichern“ wählen.");
+}
+const dateTag = () => new Date().toISOString().slice(0, 10);
+async function saveAll(btn){
+  if (!dl) return;
+  const files = allPhotos(); if (!files.length) return;
+  btn.disabled = true; dlMsg("ZIP wird gepackt …");
+  try {
+    let data, filename;
+    if (window.JSZip){
+      const zip = new JSZip();
+      files.forEach(f => zip.file(f.name, dataToBlob(photos[f.id])));
+      data = await zip.generateAsync({ type:"blob" });
+      filename = `Trinkwuerfel-${dateTag()}.zip`;
+    } else {
+      data = dataToBlob(photos[files[0].id]); filename = files[0].name.split("/").pop();
+    }
+    dlMsg("");
+    const r = await dl.save({ filename, data });
+    if (r && r.status === "saved") dlMsg(window.JSZip ? "Gespeichert. Die ZIP-Datei liegt bei deinen Downloads." : "Gespeichert.");
+  } catch(e){ dlError(e); }
+  btn.disabled = false;
+}
+async function saveOne(id){
+  if (!dl || !photos[id]) return;
+  const f = allPhotos().find(x => x.id === id);
+  try { await dl.save({ filename:(f ? f.name.split("/").pop() : "Beweisfoto.jpg"), data:dataToBlob(photos[id]) }); }
+  catch(e){ dlError(e); }
+}
+
+/* ---------- Zustand ---------- */
+const defaultGlasses = () => [0,1,2,3,4,5].map(i => ({ type: i === 5 ? "shot" : "glas", content:"" }));
+const fresh = () => ({ v:2, phase:"intro", joining:false, players:[], glasses:defaultGlasses(),
+  full:[false,false,false,false,false,false], turn:0, pending:null, lastRoll:5, history:[], proofs:[], handedFrom:null });
+let state = fresh();
+let photos = {};
+let undoStack = [];
+let draft = { name:"", photo:null };
+let rolling = false;
+let fx = null; // einmalige Animation nach Render
+
+function save(){ LS.set("tw_state", JSON.stringify(state)); }
+function savePhoto(id, data){ photos[id] = data; LS.set("tw_ph_" + id, data); }
+function dropPhoto(id){ delete photos[id]; LS.del("tw_ph_" + id); }
+function loadPhotos(){
+  const ids = state.players.map(p => p.photo).filter(Boolean).concat(state.proofs.map(p => p.photo));
+  ids.forEach(id => { if (!photos[id]) { const d = LS.get("tw_ph_" + id); if (d) photos[id] = d; } });
+}
+function pushUndo(){ undoStack.push(JSON.stringify(state)); if (undoStack.length > 40) undoStack.shift(); }
+
+const P = id => state.players.find(p => p.id === id);
+const cur = () => state.players[state.turn];
+const active = () => state.players.filter(p => p.active);
+const colorOf = p => PALETTE[(p ? p.color : 0) % PALETTE.length];
+function nextIndex(from){
+  const n = state.players.length;
+  for (let k = 1; k <= n; k++){ const i = (from + k) % n; if (state.players[i].active) return i; }
+  return -1;
+}
+const nobodyAfter = i => !state.players.slice(i + 1).some(p => p.active);
+const glassLabel = i => { const g = state.glasses[i]; return TYPES[g.type] + (g.content ? " · " + g.content : ""); };
+function log(e){ state.history.push(Object.assign({ t:Date.now() }, e)); if (state.history.length > 300) state.history.shift(); }
+
+/* Zug beenden: in der Einschreiberunde kommt nach dem letzten Eingetragenen die nächste neue Person */
+function passOn(){
+  state.handedFrom = cur() ? cur().id : null;
+  if (state.joining && nobodyAfter(state.turn)){ state.phase = "join"; return; }
+  const ni = nextIndex(state.turn);
+  if (ni >= 0) state.turn = ni;
+}
+
+/* ---------- Fotos ---------- */
+function pickPhoto(front, opts){
+  return new Promise(resolve => {
+    const inp = document.createElement("input");
+    inp.type = "file"; inp.accept = "image/*";
+    inp.setAttribute("capture", front ? "user" : "environment");
+    inp.style.cssText = "position:fixed;left:-9999px";
+    document.body.appendChild(inp);
+    inp.addEventListener("change", () => {
+      const f = inp.files && inp.files[0]; inp.remove();
+      if (!f) return resolve(null);
+      const url = URL.createObjectURL(f); const img = new Image();
+      img.onload = () => {
+        try {
+          const c = document.createElement("canvas"); const ctx = c.getContext("2d");
+          if (opts.square){
+            const s = Math.min(img.naturalWidth, img.naturalHeight);
+            c.width = c.height = opts.max;
+            ctx.drawImage(img, (img.naturalWidth - s)/2, (img.naturalHeight - s)/2, s, s, 0, 0, opts.max, opts.max);
+          } else {
+            const sc = Math.min(1, opts.max / Math.max(img.naturalWidth, img.naturalHeight));
+            c.width = Math.round(img.naturalWidth * sc); c.height = Math.round(img.naturalHeight * sc);
+            ctx.drawImage(img, 0, 0, c.width, c.height);
+          }
+          resolve(c.toDataURL("image/jpeg", 0.74));
+        } catch(e){ resolve(null); }
+        URL.revokeObjectURL(url);
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); resolve(null); };
+      img.src = url;
+    }, { once:true });
+    inp.click();
+  });
+}
+function avatar(p, size){
+  const ph = p && p.photo && photos[p.photo];
+  const ini = esc(((p && p.name) || "?").trim().charAt(0).toUpperCase());
+  return `<span class="av av-${size}" style="--c:${colorOf(p)}">${ph ? `<img src="${ph}" alt="">` : ini}</span>`;
+}
+
+/* ---------- Gläser ---------- */
+function glassSVG(i, type, opts){
+  const s = SHAPES[type]; const id = "c" + i + (opts.mini ? "m" : "");
+  const [x,y,w,h] = s.liq;
+  return `<svg viewBox="0 0 64 80" aria-hidden="true">
+    <defs><clipPath id="${id}"><path d="${s.body}"/></clipPath></defs>
+    <path class="shape" d="${s.body}"/>
+    <g clip-path="url(#${id})">
+      <rect class="liq" x="${x}" y="${y}" width="${w}" height="${h}"/>
+      <rect class="liq2" x="${x}" y="${y + h*0.55}" width="${w}" height="${h*0.45}"/>
+      ${s.foam ? `<rect class="foam" x="${s.foam[0]}" y="${s.foam[1]}" width="${s.foam[2]}" height="${s.foam[3]}" rx="3"/>` : ""}
+    </g>
+    <path class="shine" d="${s.shine}"/>
+    <path class="shape" d="${s.body}" style="fill:none"/>
+    ${s.extra}
+  </svg>`;
+}
+function glassHTML(i, cls, mini){
+  const g = state.glasses[i];
+  const full = mini ? [true,false,true,true,false,true][i] : state.full[i];
+  return `<div class="g t-${g.type} ${full ? "full" : ""} ${cls || ""}">
+    ${glassSVG(i, g.type, { mini })}
+    <span class="gn">${i + 1}</span>
+    ${mini ? "" : `<span class="gl">${esc(glassLabel(i))}</span>`}
+  </div>`;
+}
+const dieFace = n => Array.from({ length:9 }, (_,k) => `<span class="pip ${FACES[n].includes(k) ? "on" : ""}"></span>`).join("");
+
+/* ---------- Render ---------- */
+const app = document.getElementById("app");
+const sheetRoot = document.getElementById("sheet-root");
+
+function setTheme(color){
+  document.body.classList.toggle("color", !!color);
+  if (color) document.body.style.setProperty("--pc", color);
+  else document.body.style.removeProperty("--pc");
+}
+
+function render(){
+  app.className = "app " + state.phase;
+  document.body.classList.toggle("lock", state.phase === "game" || state.phase === "join");
+  if (state.phase === "intro"){ setTheme(null); renderIntro(); }
+  else if (state.phase === "join"){ setTheme(PALETTE[state.players.length % PALETTE.length]); renderJoin(); }
+  else if (state.phase === "game"){ setTheme(colorOf(cur())); renderGame(); }
+  else { setTheme(null); renderEnd(); }
+  if (fx === "flash"){ const f = document.getElementById("flash"); f.classList.remove("on"); void f.offsetWidth; f.classList.add("on"); }
+  fx = null;
+}
+
+function renderIntro(){
+  const shots = state.glasses.filter(g => g.type === "shot").length;
+  app.innerHTML = `
+  <header class="hero">
+    <span class="eyebrow">Trinkspiel · 6 Gläser · 1 Würfel</span>
+    <h1>Trink&shy;würfel</h1>
+    <p>Leeres Glas: auffüllen. Volles Glas: austrinken und nochmal. Das Handy würfelt, zählt mit und geht reihum.</p>
+  </header>
+  <div class="lineup">${[0,1,2,3,4,5].map(i => glassHTML(i, "", true)).join("")}</div>
+  <div class="stack">
+    <button class="btn" data-act="start-join">Los geht's</button>
+    <p class="note">Die erste Person trägt sich ein und würfelt sofort. Danach geht das Handy weiter.</p>
+  </div>
+  <details class="more" id="glass-card">
+    <summary>Gläser anpassen <span class="soft" style="font-weight:600;margin-left:auto;margin-right:14px;font-size:14px">${6 - shots} Gläser, ${shots} Shot${shots === 1 ? "" : "s"}</span></summary>
+    <div class="section" style="margin-top:10px">
+      ${state.glasses.map((g,i) => `
+      <div class="grow">
+        <span class="num">${i + 1}</span>
+        <div class="seg" role="group" aria-label="Glas ${i + 1}">
+          ${Object.keys(TYPES).map(t => `<button data-act="gtype" data-i="${i}" data-t="${t}" aria-pressed="${g.type === t}">${TYPES[t]}</button>`).join("")}
+        </div>
+        <input class="field" id="gc-${i}" data-gc="${i}" maxlength="24" placeholder="Inhalt (optional), z. B. Vodka-E" value="${esc(g.content)}">
+      </div>`).join("")}
+    </div>
+  </details>
+  <details class="more">
+    <summary>Regeln</summary>
+    <ul class="rules">
+      <li>Alle 6 Gläser stehen am Anfang <b>leer</b> in der Mitte.</li>
+      <li>Leeres Glas gewürfelt: <b>auffüllen</b>, dann geht das Handy weiter.</li>
+      <li>Volles Glas gewürfelt: <b>austrinken</b> und sofort nochmal würfeln, bis ein leeres Glas kommt.</li>
+      <li>Wer nicht mehr mag, tippt unten auf sich und steigt aus. Wieder einsteigen geht jederzeit.</li>
+      <li>Wasser zwischendurch hilft. Und niemand muss.</li>
+    </ul>
+  </details>
+  <p class="credit"><svg viewBox="0 0 64 80" aria-hidden="true"><defs><clipPath id="cr"><path d="M17 34 H47 L44 72 H20 Z"/></clipPath></defs><rect clip-path="url(#cr)" x="0" y="46" width="64" height="30" fill="var(--drink)"/><path d="M17 34 H47 L44 72 H20 Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/></svg><span>created by</span><b>Lion</b></p>`;
+}
+
+function renderJoin(){
+  const n = state.players.length + 1;
+  const from = state.handedFrom && P(state.handedFrom);
+  const first = state.players.find(p => p.active);
+  app.innerHTML = `
+  <div class="join-head">
+    <div><span class="eyebrow">Spieler ${n}</span><h1>Wer bist du?</h1></div>
+    ${undoStack.length ? `<button class="ib" data-act="undo" aria-label="Rückgängig">${ICON.undo}</button>` : ""}
+  </div>
+  ${from ? `<p class="handoff">${esc(from.name)} hat weitergegeben. Neu am Tisch? Trag dich ein und würfel direkt los.</p>` : ""}
+  <form class="stack" id="join-form" autocomplete="off" style="gap:16px">
+    <button type="button" class="selfie" data-act="selfie" aria-label="Selfie aufnehmen">
+      ${draft.photo ? `<img src="${draft.photo}" alt="Dein Selfie">` : `<span>${ICON.cam}Selfie</span>`}
+    </button>
+    <input class="field name-input" id="join-name" maxlength="18" placeholder="Dein Name" value="${esc(draft.name)}" enterkeyhint="go">
+    <button type="submit" class="btn" id="join-submit" ${draft.name.trim() ? "" : "disabled"}>Eintragen und würfeln</button>
+  </form>
+  ${state.players.length ? `
+  <div class="stack" style="gap:12px">
+    <span class="eyebrow">Schon dabei</span>
+    <div class="seated">${state.players.map(p => `<div class="seat">${avatar(p,"m")}<span>${esc(p.name)}</span></div>`).join("")}</div>
+  </div>` : ""}
+  ${state.players.length >= 2 && first ? `
+  <div class="stack bottom">
+    <button class="btn alt" data-act="all-in">Alle sind drin · ${esc(first.name)} ist dran</button>
+    <p class="note">Ist das Handy wieder bei ${esc(first.name)}? Dann hier tippen.</p>
+  </div>` : (state.players.length === 0 ? `<button class="btn alt bottom" data-act="to-intro">Zurück</button>` : "")}`;
+  const inp = document.getElementById("join-name");
+  inp.addEventListener("input", () => { draft.name = inp.value; document.getElementById("join-submit").disabled = !draft.name.trim(); });
+}
+
+function renderGame(){
+  const p = cur(); const pend = state.pending;
+  const cls = i => pend && pend.roll === i + 1 ? "hit " + (pend.kind === "drink" ? "hit-drink" : "hit-fill") : "";
+  let verdict, actions;
+  if (!pend){
+    verdict = `<span class="line">${state.joining ? "Runde 1 · tipp auf den Würfel" : "Tipp auf den Würfel"}</span>`;
+    actions = `<button class="btn" data-act="roll">Würfeln</button>`;
+  } else if (pend.kind === "fill"){
+    const g = state.glasses[pend.roll - 1];
+    const toJoin = state.joining && nobodyAfter(state.turn);
+    const ni = nextIndex(state.turn);
+    const target = toJoin ? "Handy weitergeben" : "weiter an " + esc(ni >= 0 ? state.players[ni].name : "");
+    verdict = `<span class="word">Auffüllen</span><span class="line">Glas ${pend.roll} ist leer${g.content ? " · " + esc(g.content) + " rein" : ""}</span>`;
+    actions = `<button class="btn" data-act="confirm">Aufgefüllt <span class="sub">· ${target}</span></button>`;
+  } else {
+    const g = state.glasses[pend.roll - 1];
+    const nProofs = state.proofs.filter(x => x.key === pend.key).length;
+    verdict = `<span class="word">Trinken!</span>
+      <span class="line">Glas ${pend.roll}${g.type === "shot" ? " · der Shot" : ""}${g.content ? " · " + esc(g.content) : ""}</span>
+      ${p.streak >= 1 ? `<span class="streak">${p.streak + 1}. am Stück</span>` : ""}`;
+    actions = `<div class="row2">
+      <button class="btn" data-act="confirm">Getrunken <span class="sub">· nochmal</span></button>
+      <button class="btn alt icon" data-act="proof" aria-label="Beweisfoto${nProofs ? ", " + nProofs + " gemacht" : ""}">${ICON.cam}${nProofs ? `<span class="pcount">${nProofs}</span>` : ""}</button>
+    </div>`;
+  }
+  app.innerHTML = `
+  <div class="top">
+    ${avatar(p,"m")}
+    <div class="who"><span class="eyebrow">ist dran</span><div class="name">${esc(p.name)}</div></div>
+    <div class="icons">
+      <button class="ib" data-act="undo" aria-label="Rückgängig" ${undoStack.length ? "" : "disabled"}>${ICON.undo}</button>
+      <button class="ib" data-act="board" aria-label="Rangliste">${ICON.board}</button>
+      <button class="ib" data-act="menu" aria-label="Menü">${ICON.menu}</button>
+    </div>
+  </div>
+  <div class="table">${[0,1,2,3,4,5].map(i => glassHTML(i, cls(i))).join("")}</div>
+  <section class="stage" aria-live="polite">
+    <div class="die ${pend ? "" : "idle"}" id="die" ${pend ? "" : 'data-act="roll" role="button" tabindex="0" aria-label="Würfeln"'}>${dieFace(pend ? pend.roll : state.lastRoll)}</div>
+    <div class="verdict">${verdict}</div>
+    <div class="actions">${actions}</div>
+  </section>
+  <div class="strip">${state.players.map((q,i) => `
+    <button class="pl ${i === state.turn ? "cur" : ""} ${q.active ? "" : "out"}" data-act="player" data-id="${q.id}" aria-label="${esc(q.name)}, ${q.drinks} Gläser">
+      <span class="wrap">${avatar(q,"s")}<span class="badge">${q.active ? q.drinks : "raus"}</span></span>
+      <span class="nm">${esc(q.name)}</span>
+    </button>`).join("")}
+    ${state.joining ? `<button class="pl" data-act="menu" aria-label="Jemand kommt dazu"><span class="wrap"><span class="av av-s" style="--c:rgba(255,255,255,.16)">+</span></span><span class="nm">Neu</span></button>` : ""}
+  </div>`;
+}
+
+function awards(){
+  const ps = state.players; if (!ps.length) return [];
+  const top = ps.slice().sort((a,b) => (b.drinks - a.drinks) || (b.shots - a.shots))[0];
+  const out = [];
+  if (top.drinks) out.push(["Meiste Gläser", top, top.drinks]);
+  const sh = ps.slice().sort((a,b) => b.shots - a.shots)[0];
+  if (sh.shots) out.push(["Meiste Shots", sh, sh.shots]);
+  const st = ps.slice().sort((a,b) => b.best - a.best)[0];
+  if (st.best > 1) out.push(["Längste Serie", st, st.best + "×"]);
+  const low = ps.slice().sort((a,b) => a.drinks - b.drinks)[0];
+  if (ps.length > 1 && top.drinks && low !== top) out.push(["Glückspilz", low, low.drinks]);
+  return out;
+}
+function rankRows(){
+  const sorted = state.players.slice().sort((a,b) => (b.drinks - a.drinks) || (b.shots - a.shots));
+  return `<div class="rows">${sorted.map((p,i) => `
+    <div class="r"><span class="rk">${i + 1}</span>${avatar(p,"s")}
+      <span class="nm">${esc(p.name)}<small>${p.shots} Shot${p.shots === 1 ? "" : "s"} · beste Serie ${p.best}${p.active ? "" : " · ausgestiegen"}</small></span>
+      <span class="val">${p.drinks}</span></div>`).join("")}</div>`;
+}
+function renderEnd(){
+  const aw = awards(); const total = state.players.reduce((s,p) => s + p.drinks, 0);
+  const pics = state.proofs.filter(x => photos[x.photo]);
+  app.innerHTML = `
+  <header class="hero">
+    <span class="eyebrow">${total} ${total === 1 ? "Glas" : "Gläser"} getrunken</span>
+    <h1>Endstand</h1>
+  </header>
+  ${aw.length ? `<div class="awards">${aw.map(a => `<div class="award"><span class="eyebrow">${a[0]}</span><span class="val">${a[2]}</span><div class="who">${avatar(a[1],"s")}<span>${esc(a[1].name)}</span></div></div>`).join("")}</div>` : ""}
+  <div class="section"><span class="eyebrow">Rangliste</span><div class="panel">${rankRows()}</div></div>
+  <div class="section"><span class="eyebrow">Beweisfotos</span>
+    ${pics.length ? `<div class="gallery">${pics.map(x => { const q = P(x.pid); return `<figure><img src="${photos[x.photo]}" alt="Beweisfoto von ${esc(q ? q.name : "")}"><figcaption><span class="cap">${esc(q ? q.name : "?")}<small>Glas ${x.glass} · ${esc(x.label)}</small></span>${dl ? `<button class="save" data-act="save-one" data-ph="${x.photo}" aria-label="Foto speichern">${ICON.down}</button>` : ""}</figcaption></figure>`; }).join("")}</div>`
+      : `<p class="empty">Keine Beweisfotos. Beim nächsten Mal beim Trinken auf „Beweisfoto“ tippen.</p>`}
+  </div>
+  ${allPhotos().length ? `<div class="stack">
+    ${dl ? `<button class="btn" data-act="save-all">${ICON.down} Alle Fotos herunterladen</button>
+      <p class="note">Beweisfotos und Selfies als ZIP-Datei, zum Weiterschicken.</p>`
+      : `<p class="note">Speichern geht hier nicht direkt: Foto gedrückt halten und „Bild sichern“ wählen.</p>`}
+    <p class="dl-msg" id="dl-msg" aria-live="polite"></p>
+  </div>` : ""}
+  <div class="stack">
+    ${active().length ? `<button class="btn" data-act="resume">Weiterspielen</button>` : ""}
+    <button class="btn alt" data-act="rematch">Neue Runde, gleiche Leute</button>
+    <button class="btn alt" data-act="reset" data-confirm="Sicher? Nochmal tippen">Alles neu</button>
+  </div>`;
+}
+
+/* ---------- Sheets ---------- */
+function openSheet(title, body){
+  sheetRoot.innerHTML = `<div class="overlay" data-act="close-sheet"><div class="sheet" role="dialog" aria-label="${esc(title)}">
+    <div class="sheet-head"><h3>${esc(title)}</h3><button class="ib" data-act="close-sheet" aria-label="Schließen">${ICON.close}</button></div>
+    ${body}</div></div>`;
+}
+const closeSheet = () => { sheetRoot.innerHTML = ""; };
+function playerSheet(id){
+  const p = P(id); if (!p) return;
+  openSheet(p.name, `
+    <div style="display:flex;justify-content:center">${avatar(p,"l")}</div>
+    <div class="stats3"><div><b>${p.drinks}</b><span>Gläser</span></div><div><b>${p.shots}</b><span>Shots</span></div><div><b>${p.best}</b><span>beste Serie</span></div></div>
+    <div class="stack">
+      <button class="btn alt" data-act="rephoto" data-id="${p.id}">Neues Selfie</button>
+      ${p.active ? `<button class="btn" data-act="leave" data-id="${p.id}" data-confirm="Sicher? Nochmal tippen">Aussteigen</button>`
+                 : `<button class="btn" data-act="rejoin" data-id="${p.id}">Wieder einsteigen</button>`}
+    </div>`);
+}
+function historySheet(){
+  const rows = state.history.slice().reverse().slice(0, 80).map(h => {
+    const q = P(h.pid); const nm = esc(q ? q.name : "?");
+    const txt = { drink:`${nm} trinkt${h.label ? " · " + esc(h.label) : ""}`, fill:`${nm} füllt auf`, leave:`${nm} steigt aus`, rejoin:`${nm} ist wieder dabei`, add:`${nm} kommt dazu` }[h.kind];
+    const dot = h.roll ? `<span class="dot ${h.kind === "drink" ? "d" : "f"}">${h.roll}</span>` : `<span class="dot f">${h.kind === "leave" ? "–" : "+"}</span>`;
+    return txt ? `<div class="r">${dot}<span>${txt}</span></div>` : "";
+  }).join("");
+  openSheet("Verlauf", rows ? `<div class="rows hist">${rows}</div>` : `<p class="empty">Noch nichts passiert.</p>`);
+}
+function menuSheet(){
+  openSheet("Menü", `
+    <form class="stack" id="add-form" autocomplete="off">
+      <span class="eyebrow">Jemand kommt dazu</span>
+      <input class="field" id="add-name" maxlength="18" placeholder="Name">
+      <button type="submit" class="btn alt">Mit Selfie hinzufügen</button>
+      <p class="note" style="text-align:left">Sitzt dann direkt nach ${esc(cur() ? cur().name : "")}.</p>
+    </form>
+    <div class="stack">
+      <button class="btn alt" data-act="history">Verlauf</button>
+      <button class="btn" data-act="end">Abend beenden</button>
+      <button class="btn alt" data-act="reset" data-confirm="Sicher? Nochmal tippen">Spiel abbrechen</button>
+    </div>`);
+}
+
+/* ---------- Aktionen ---------- */
+function armed(btn){
+  if (!btn.dataset.confirm || btn.dataset.armed === "1") return true;
+  btn.dataset.armed = "1"; const orig = btn.innerHTML; btn.textContent = btn.dataset.confirm;
+  setTimeout(() => { if (btn.isConnected){ btn.dataset.armed = ""; btn.innerHTML = orig; } }, 3200);
+  return false;
+}
+let wakeLock = null;
+async function keepAwake(){ try { if ("wakeLock" in navigator && document.visibilityState === "visible") wakeLock = await navigator.wakeLock.request("screen"); } catch(e){} }
+document.addEventListener("visibilitychange", () => { if (state.phase === "game") keepAwake(); });
+
+function makePlayer(name, photoData){
+  const used = new Set(state.players.map(p => p.color));
+  let color = state.players.length; for (let c = 0; c < PALETTE.length; c++) if (!used.has(c)) { color = c; break; }
+  const p = { id:uid(), name:name.trim().slice(0,18), photo:null, color, active:true, drinks:0, shots:0, streak:0, best:0 };
+  if (photoData){ const id = "av_" + uid(); savePhoto(id, photoData); p.photo = id; }
+  return p;
+}
+
+function doRoll(){
+  if (rolling || state.pending || state.phase !== "game") return;
+  rolling = true;
+  const n = rnd6(); const die = document.getElementById("die");
+  const finish = () => {
+    rolling = false; state.lastRoll = n;
+    const kind = state.full[n - 1] ? "drink" : "fill";
+    state.pending = { roll:n, kind, key:uid() };
+    if (kind === "drink"){ fx = "flash"; buzz([90,60,90]); } else buzz(25);
+    save(); render();
+  };
+  if (!die || reduced) return finish();
+  die.classList.remove("idle"); die.classList.add("rolling");
+  let k = 0;
+  const iv = setInterval(() => { k = (k + 1 + Math.floor(Math.random() * 5)) % 6; die.innerHTML = dieFace(k + 1); }, 70);
+  setTimeout(() => { clearInterval(iv); die.innerHTML = dieFace(n); }, 620);
+  setTimeout(finish, 720);
+}
+function confirmPending(){
+  const pend = state.pending; if (!pend) return;
+  pushUndo();
+  const p = cur(); const i = pend.roll - 1;
+  state.pending = null;
+  if (pend.kind === "fill"){
+    state.full[i] = true; p.streak = 0;
+    log({ pid:p.id, roll:pend.roll, kind:"fill" });
+    passOn();
+    if (state.phase === "join") draft = { name:"", photo:null };
+  } else {
+    state.full[i] = false;
+    p.drinks++; if (state.glasses[i].type === "shot") p.shots++;
+    p.streak++; p.best = Math.max(p.best, p.streak);
+    log({ pid:p.id, roll:pend.roll, kind:"drink", label:glassLabel(i) });
+  }
+  save(); render(); window.scrollTo(0, 0);
+}
+async function takeProof(){
+  const pend = state.pending; if (!pend || pend.kind !== "drink") return;
+  const data = await pickPhoto(false, { max:720, square:false }); if (!data) return;
+  const id = "pr_" + uid(); savePhoto(id, data);
+  state.proofs.push({ photo:id, pid:cur().id, glass:pend.roll, label:glassLabel(pend.roll - 1), key:pend.key, t:Date.now() });
+  save(); render();
+}
+function leave(id){
+  const idx = state.players.findIndex(p => p.id === id); if (idx < 0) return;
+  pushUndo();
+  const p = state.players[idx]; p.active = false; p.streak = 0;
+  log({ pid:id, kind:"leave" });
+  if (idx === state.turn && state.phase === "game"){ state.pending = null; passOn(); }
+  if (!active().length && !state.joining) state.phase = "end";
+  save(); closeSheet(); render();
+}
+function rejoin(id){
+  const p = P(id); if (!p) return;
+  pushUndo(); p.active = true; log({ pid:id, kind:"rejoin" });
+  if (!cur() || !cur().active) state.turn = state.players.indexOf(p);
+  save(); closeSheet(); render();
+}
+function wipeProofs(){ state.proofs.forEach(x => dropPhoto(x.photo)); state.proofs = []; }
+
+document.addEventListener("click", async e => {
+  const el = e.target.closest("[data-act]"); if (!el) return;
+  const act = el.dataset.act;
+  if (act === "close-sheet"){ if (e.target === el || el.tagName === "BUTTON") closeSheet(); return; }
+  switch (act){
+    case "gtype": {
+      state.glasses[+el.dataset.i].type = el.dataset.t; save();
+      const open = document.getElementById("glass-card").open; render(); document.getElementById("glass-card").open = open; break;
+    }
+    case "start-join": state.phase = "join"; state.joining = true; state.handedFrom = null; draft = { name:"", photo:null }; save(); render(); setTimeout(() => { const n = document.getElementById("join-name"); n && n.focus(); }, 60); break;
+    case "to-intro": state.phase = "intro"; state.joining = false; save(); render(); break;
+    case "selfie": { const d = await pickPhoto(true, { max:320, square:true }); if (d){ draft.photo = d; render(); } break; }
+    case "all-in": {
+      pushUndo();
+      state.joining = false; state.phase = "game"; state.handedFrom = null;
+      const fi = state.players.findIndex(p => p.active); state.turn = fi < 0 ? 0 : fi;
+      draft = { name:"", photo:null }; save(); render(); keepAwake(); break;
+    }
+    case "save-all": saveAll(el); break;
+    case "save-one": saveOne(el.dataset.ph); break;
+    case "roll": doRoll(); break;
+    case "confirm": confirmPending(); break;
+    case "proof": takeProof(); break;
+    case "undo": if (undoStack.length && !rolling){ state = JSON.parse(undoStack.pop()); loadPhotos(); save(); closeSheet(); render(); } break;
+    case "board": openSheet("Rangliste", rankRows()); break;
+    case "history": historySheet(); break;
+    case "menu": menuSheet(); break;
+    case "player": playerSheet(el.dataset.id); break;
+    case "leave": if (!armed(el)) return; leave(el.dataset.id); break;
+    case "rejoin": rejoin(el.dataset.id); break;
+    case "rephoto": {
+      const p = P(el.dataset.id); if (!p) return;
+      const d = await pickPhoto(true, { max:320, square:true });
+      if (d){ const id = "av_" + uid(); savePhoto(id, d); if (p.photo) dropPhoto(p.photo); p.photo = id; save(); render(); playerSheet(p.id); }
+      break;
+    }
+    case "end": state.pending = null; state.joining = false; state.phase = "end"; save(); closeSheet(); render(); window.scrollTo(0, 0); break;
+    case "resume": {
+      state.phase = "game";
+      if (!cur() || !cur().active){ const ni = nextIndex(state.turn); if (ni >= 0) state.turn = ni; }
+      save(); render(); keepAwake(); break;
+    }
+    case "rematch": {
+      wipeProofs();
+      state.players.forEach(p => Object.assign(p, { active:true, drinks:0, shots:0, streak:0, best:0 }));
+      Object.assign(state, { full:[false,false,false,false,false,false], pending:null, history:[], turn:0, phase:"game", joining:false });
+      undoStack = []; save(); render(); window.scrollTo(0, 0); keepAwake(); break;
+    }
+    case "reset": {
+      if (!armed(el)) return;
+      wipeProofs(); state.players.forEach(p => p.photo && dropPhoto(p.photo));
+      const glasses = state.glasses; state = fresh(); state.glasses = glasses;
+      draft = { name:"", photo:null }; undoStack = []; save(); closeSheet(); render(); window.scrollTo(0, 0); break;
+    }
+  }
+});
+document.addEventListener("keydown", e => { if ((e.key === "Enter" || e.key === " ") && e.target.id === "die"){ e.preventDefault(); doRoll(); } });
+document.addEventListener("input", e => {
+  const gc = e.target.dataset && e.target.dataset.gc;
+  if (gc !== undefined){ state.glasses[+gc].content = e.target.value.slice(0,24); save(); }
+});
+document.addEventListener("submit", async e => {
+  e.preventDefault();
+  if (e.target.id === "join-form"){
+    const name = draft.name.trim(); if (!name) return;
+    pushUndo();
+    const p = makePlayer(name, draft.photo);
+    state.players.push(p);
+    state.turn = state.players.length - 1;
+    state.phase = "game"; state.handedFrom = null;
+    draft = { name:"", photo:null };
+    save(); render(); window.scrollTo(0, 0); buzz(25); keepAwake();
+  }
+  if (e.target.id === "add-form"){
+    const inp = document.getElementById("add-name"); const name = inp.value.trim();
+    if (!name){ inp.focus(); return; }
+    const d = await pickPhoto(true, { max:320, square:true });
+    pushUndo();
+    const p = makePlayer(name, d);
+    state.players.splice(state.turn + 1, 0, p);
+    log({ pid:p.id, kind:"add" });
+    save(); closeSheet(); render();
+  }
+});
+
+/* ---------- Start ---------- */
+function boot(data){
+  let loaded = data && data.state;
+  if (!loaded){ const raw = LS.get("tw_state"); if (raw){ try { loaded = JSON.parse(raw); } catch(e){} } }
+  if (loaded && loaded.v === 2 && Array.isArray(loaded.players)) state = Object.assign(fresh(), loaded);
+  if (state.phase === "game" && !cur()) state.phase = state.players.length ? "end" : "intro";
+  if (state.phase === "end" && !state.players.length) state.phase = "intro";
+  if (state.phase !== "game") state.pending = null;
+  loadPhotos(); render();
+  if (state.phase === "game") keepAwake();
+}
+try { window.claude?.hot?.snapshot?.(() => ({ state })); } catch(e){}
+window.claude?.hot?.ready ? window.claude.hot.ready(boot) : boot(window.claude?.hot?.data ?? {});
+})();
+</script>
+
+</body></html>
