@@ -1,0 +1,42 @@
+# Trinkwürfel
+
+Das Trinkspiel mit 6 Gläsern und einem Würfel, direkt im Handy-Browser. Kein Download, keine Anmeldung: Link öffnen, eintragen, würfeln.
+
+**Spielen:** https://lionstone3010.github.io/trinkwuerfel/
+**Alte Version 1.0:** https://lionstone3010.github.io/trinkwuerfel/v1/
+
+## So geht's
+- Alle 6 Gläser stehen am Anfang leer in der Mitte.
+- Leeres Glas gewürfelt: auffüllen, dann geht das Handy weiter.
+- Volles Glas gewürfelt: austrinken und sofort nochmal würfeln, bis ein leeres Glas kommt.
+- Wer nicht mehr mag, steigt aus. Wasser zwischendurch hilft. Und niemand muss.
+
+## Neu in Version 2.0
+
+**Spiel einstellen**
+- Reihenfolge: Im Kreis, Zufall (jeder einmal pro Runde), Zufall · Chaos
+- K.O.-Modus mit 3, 4 oder 5 Herzen (Glas 1, Shot 2, Kurzer 1) und „Last Man Standing“
+- Add-ons zum Anklicken: Volles Haus, Doppel, Drilling, Rache, Joker, Shot-Duell
+
+**Fähigkeitskarten**
+- Etwa zwei Drittel bekommen beim Eintragen eine geheime Karte (gedrückt halten zum Ansehen)
+- Angriff: Sabotage, Tausch, Umleitung, Barkeeper
+- Konter: Glückspilz, Spiegel, Schutzengel
+
+**Show und Effekte**
+- Fake-Spannung beim Würfeln (der Würfel bleibt fair)
+- Spielautomat-Auslosung im Zufallsmodus
+- Volles-Haus-Diashow, K.O.-Stempel, Karten-Animationen
+- Boomerang-Beweisfotos (4 Bilder, als GIF herunterladbar)
+
+**Spielende**
+- Rückblick-Diashow mit allen Karten
+- Rage-Moment des Abends und Knapp-daneben-Statistik
+- Alle Fotos als ZIP herunterladen
+
+**Außerdem**
+- Passt sich jeder Handygröße an, ohne Scrollen und ohne Überlappungen
+- Spielstand und Fotos bleiben nur auf dem Handy, nichts wird hochgeladen
+
+---
+created by Lion
