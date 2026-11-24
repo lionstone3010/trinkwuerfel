@@ -1,7 +1,7 @@
 # Trinkwürfel heißt jetzt SixCup
 
 **Neuer Link:** https://lionstone3010.github.io/sixcup/
-Der alte Link leitet automatisch dorthin weiter. Neue Versionen erscheinen nur noch im Projekt [sixcup](https://github.com/lionstone3010/sixcup).
+Der alte Link leitet automatisch dorthin weiter. Die archivierten Versionen zählen nicht mehr im Besucherzähler mit. Neue Versionen erscheinen nur noch im Projekt [sixcup](https://github.com/lionstone3010/sixcup).
 
 ---
 
