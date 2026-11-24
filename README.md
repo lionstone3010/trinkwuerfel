@@ -3,13 +3,21 @@
 Das Trinkspiel mit 6 Gläsern und einem Würfel, direkt im Handy-Browser. Kein Download, keine Anmeldung: Link öffnen, eintragen, würfeln.
 
 **Spielen:** https://lionstone3010.github.io/trinkwuerfel/
-**Ältere Versionen:** [2.0](https://lionstone3010.github.io/trinkwuerfel/v2/) · [1.0](https://lionstone3010.github.io/trinkwuerfel/v1/)
+**Ältere Versionen:** [2.1](https://lionstone3010.github.io/trinkwuerfel/v2.1/) · [2.0](https://lionstone3010.github.io/trinkwuerfel/v2/) · [1.0](https://lionstone3010.github.io/trinkwuerfel/v1/)
+
+**Als App aufs Handy:** Link im Browser öffnen, dann *Teilen → Zum Home-Bildschirm* (iPhone) oder *⋮ → App installieren* (Android).
 
 ## So geht's
 - Alle 6 Gläser stehen am Anfang leer in der Mitte.
 - Leeres Glas gewürfelt: auffüllen, dann geht das Handy weiter.
 - Volles Glas gewürfelt: austrinken und sofort nochmal würfeln, bis ein leeres Glas kommt.
 - Wer nicht mehr mag, steigt aus. Wasser zwischendurch hilft. Und niemand muss.
+
+## Neu in Version 2.2
+- Eigenes App-Symbol (Würfel aus Gläsern) für Home-Bildschirm und Browser-Tab
+- Öffnet sich vom Home-Bildschirm im Vollbild, ohne Browserleiste
+- Offline spielbar: nach dem ersten Öffnen läuft das Spiel auch ohne Internet
+- Updates kommen weiterhin automatisch, sobald Internet da ist
 
 ## Neu in Version 2.1
 - Anonymer Besucherzähler mit GoatCounter: zählt Seitenaufrufe und Spielstarts, ohne Cookies
