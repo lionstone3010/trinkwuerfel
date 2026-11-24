@@ -1,9 +1,14 @@
-# Trinkwürfel
+# Trinkwürfel heißt jetzt SixCup
+
+**Neuer Link:** https://lionstone3010.github.io/sixcup/
+Der alte Link leitet automatisch dorthin weiter. Neue Versionen erscheinen nur noch im Projekt [sixcup](https://github.com/lionstone3010/sixcup).
+
+---
+
 
 Das Trinkspiel mit 6 Gläsern und einem Würfel, direkt im Handy-Browser. Kein Download, keine Anmeldung: Link öffnen, eintragen, würfeln.
 
-**Spielen:** https://lionstone3010.github.io/trinkwuerfel/
-**Ältere Versionen:** [2.2](https://lionstone3010.github.io/trinkwuerfel/v2.2/) · [2.1](https://lionstone3010.github.io/trinkwuerfel/v2.1/) · [2.0](https://lionstone3010.github.io/trinkwuerfel/v2/) · [1.0](https://lionstone3010.github.io/trinkwuerfel/v1/)
+**Ältere Versionen:** [2.3](https://lionstone3010.github.io/trinkwuerfel/v2.3/) · [2.2](https://lionstone3010.github.io/trinkwuerfel/v2.2/) · [2.1](https://lionstone3010.github.io/trinkwuerfel/v2.1/) · [2.0](https://lionstone3010.github.io/trinkwuerfel/v2/) · [1.0](https://lionstone3010.github.io/trinkwuerfel/v1/)
 
 **Als App aufs Handy:** Link im Browser öffnen, dann *Teilen → Zum Home-Bildschirm* (iPhone) oder *⋮ → App installieren* (Android).
 

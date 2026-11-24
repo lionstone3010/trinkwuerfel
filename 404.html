@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>SixCup</title>
+<meta name="theme-color" content="#000000">
+<link rel="canonical" href="https://lionstone3010.github.io/sixcup/">
+<link rel="icon" type="image/png" sizes="32x32" href="/sixcup/icons/favicon-32.png">
+<meta http-equiv="refresh" content="1; url=/sixcup/?von=trinkwuerfel">
+<meta name="robots" content="noindex">
+<script>
+/* Trinkwürfel heißt jetzt SixCup: sofort weiterleiten.
+   Auf github.io wird der Aufruf über den alten Link anonym gezählt (GoatCounter, ohne Cookies). */
+(function(){
+  var target = "/sixcup/?von=trinkwuerfel";
+  try {
+    if (/github\.io$/.test(location.hostname) && window.fetch)
+      fetch("https://trinkwuerfel.goatcounter.com/count?p=" + encodeURIComponent("alter-link") + "&t=" + encodeURIComponent("Über alten Trinkwürfel-Link") + "&e=true&rnd=" + Math.random().toString(36).slice(2), { mode:"no-cors", keepalive:true, credentials:"omit" }).catch(function(){});
+  } catch(e){}
+  location.replace(target);
+})();
+</script>
+<style>
+html,body{height:100%;margin:0}
+body{background:#000;color:#fff;font:600 17px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;box-sizing:border-box}
+a{color:#ffc84a}
+</style>
+</head>
+<body>
+<p>Trinkwürfel heißt jetzt <b>SixCup</b>.<br><a href="/sixcup/?von=trinkwuerfel">Weiter zum Spiel</a></p>
+</body>
+</html>
