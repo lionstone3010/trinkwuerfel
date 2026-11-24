@@ -343,6 +343,39 @@ details.more[open] summary::after{transform:rotate(-135deg)}
 .privacy{font-size:11px;line-height:1.4;color:var(--soft);text-align:center;max-width:36ch;margin:-12px auto 0;opacity:.85}
 .credit b{font-family:var(--display);font-weight:800;font-size:17px;letter-spacing:-.01em;color:var(--fg);box-shadow:inset 0 -5px 0 var(--drink);line-height:1.1}
 
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{min-height:36px;padding:0 12px;border-radius:999px;background:#eef0f3;color:var(--ink);font-size:14px;font-weight:700}
+.chip[aria-pressed="true"]{background:var(--ink);color:#fff}
+.chip.idea{text-align:left;padding:8px 12px;font-weight:600;line-height:1.3}
+.rule-row{display:flex;align-items:center;gap:10px;padding:12px 0;border-top:1px solid var(--line)}
+.rule-txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;font-weight:700}
+.rule-trig{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--soft)}
+.rule-del{background:#e4e6eb;width:36px;height:36px}
+.rule-del svg{width:18px;height:18px;stroke:var(--ink)}
+.share-prev{display:flex;justify-content:center;background:#14151b;border-radius:16px;padding:12px}
+.share-prev img{width:min(56%,220px);aspect-ratio:9/16;border-radius:10px;display:block;background:#23252f}
+.tour{position:fixed;inset:0;z-index:45;background:rgba(10,11,16,.6);display:flex;align-items:flex-end;justify-content:center;animation:fadeIn .2s ease both}
+.tour-card{--fg:var(--ink);--soft:var(--ink-soft);--btn-bg:var(--ink);--btn-fg:#fff;--line:#e3e5ea;background:#fff;color:var(--ink);width:100%;max-width:520px;max-height:92%;overflow-y:auto;box-sizing:border-box;border-radius:28px 28px 0 0;
+  padding:20px max(18px, env(safe-area-inset-right, 0px)) calc(22px + env(safe-area-inset-bottom, 0px)) max(18px, env(safe-area-inset-left, 0px));display:flex;flex-direction:column;gap:14px;animation:up .25s cubic-bezier(.2,1,.4,1);touch-action:pan-y}
+.tour-top{display:flex;justify-content:space-between;align-items:center}
+.tour-skip{font-weight:800;font-size:14px;color:var(--ink-soft);padding:6px 4px}
+.tour-vis{--fg:#fff;--soft:rgba(255,255,255,.8);height:clamp(110px,22vh,170px);border-radius:22px;background:linear-gradient(135deg,#2b50e8,#7a35e8);display:grid;place-items:center;color:#fff;overflow:hidden}
+.tour-card h2{font-size:clamp(30px,8vw,40px)}
+.tour-card p{color:var(--ink-soft);font-size:16px;line-height:1.5}
+.tour-card .row{display:flex;gap:10px}
+.tour-card .row .btn{flex:1}
+.tour-glasses{display:grid;grid-template-columns:repeat(3,74px);gap:14px}
+.tour-glasses .g svg{width:60px}
+.tour-glasses .g .gn{font-size:18px;width:auto;height:auto}
+.tour-pass{display:flex;align-items:center;gap:10px}
+.tour-pass .arr,.tour-cards .arr{font-family:var(--display);font-weight:800;font-size:28px;opacity:.85}
+.tour-cards{display:flex;align-items:center;gap:14px}
+.mc{width:78px;height:108px;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;font-weight:800}
+.mc.back{background:rgba(255,255,255,.16);box-shadow:inset 0 0 0 2px rgba(255,255,255,.6);font-family:var(--display);font-size:40px}
+.mc.front{background:#fff;color:var(--ink);font-size:14px}
+.mc .tag{font-size:9px;padding:2px 6px}
+.tour-chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;padding:0 16px}
+.tour-chips span{background:rgba(255,255,255,.18);border-radius:999px;padding:8px 14px;font-weight:800;font-size:15px}
 /* Ein-Screen-Layouts */
 html:has(body.lock), body.lock{overflow:hidden;overscroll-behavior:none}
 .app.game,.app.join,.app.peek{
@@ -378,6 +411,22 @@ html:has(body.lock), body.lock{overflow:hidden;overscroll-behavior:none}
 .app.join .seat .av{width:clamp(38px,6dvh,50px);height:clamp(38px,6dvh,50px)}
 .app.join .bottom{margin-top:auto}
 @media (max-height:640px){ .app.join .bottom .note{display:none} }
+.app.join.jt{gap:10px;padding-block:10px 10px}
+.app.join.jt .join-head h1{font-size:clamp(30px,6dvh,48px)}
+.app.join.jt .handoff{font-size:13px;padding:8px 12px}
+.app.join.jt #join-form{gap:10px!important}
+.app.join.jt .selfie{width:clamp(64px,12dvh,110px);height:clamp(64px,12dvh,110px)}
+.app.join.jt .bottom .note{display:none}
+.app.join.jt .seat{width:48px}
+.app.join.jt .seat .av{width:38px;height:38px;font-size:17px}
+.app.join.jt2 .handoff{display:none}
+.app.join.jt2 .join-head h1{font-size:30px}
+.app.join.jt2 .selfie{width:60px;height:60px;font-size:12px}
+.app.join.jt2 .selfie svg{width:22px;height:22px;margin-bottom:2px}
+.app.join.jt2 .name-input{min-height:46px;font-size:18px}
+.app.join.jt2 .btn{min-height:46px;font-size:16px}
+.app.join.jt2 .seat span{display:none}
+.app.join.jscroll{overflow-y:auto}
 .app.peek{padding-block:18px 14px;gap:clamp(12px,2.4dvh,24px)}
 .app.peek .hold{width:min(62vw,250px,36dvh)}
 .app.peek .stack{width:100%}
@@ -464,7 +513,17 @@ const ADDONS = [
 ];
 const VIA = { doppel:"Doppel", drilling:"Drilling", duell:"Shot-Duell", barkeeper:"Barkeeper", joker:"Joker", rache:"Rache", umleitung:"Umleitung", spiegel:"Spiegel", full:"Volles Haus" };
 const ORDERS = { circle:["Im Kreis","Reihum, so wie ihr sitzt."], random:["Zufall","Jede Runde neu gemischt. Jeder kommt einmal pro Runde dran."], chaos:["Zufall · Chaos","Purer Zufall. Auch zweimal hintereinander möglich."] };
-const DEF_SETTINGS = () => ({ order:"circle", ko:false, hearts:3, cards:true, addons:{ full:true, doppel:false, drilling:true, rache:false, joker:true, duell:false } });
+const DEF_SETTINGS = () => ({ order:"circle", ko:false, hearts:3, cards:true, addons:{ full:true, doppel:false, drilling:true, rache:false, joker:true, duell:false }, rules:[] });
+const RULE_TRIGS = { num:"Bei einer Zahl", shot:"Wenn jemand den Shot trinkt", streak3:"Bei 3 am Stück", full:"Bei Volles Haus", ko:"Wenn jemand K.O. ist", every10:"Alle 10 Würfe" };
+const RULE_IDEAS = [
+  { trig:"num", n:3, text:"Alle stoßen an" },
+  { trig:"shot", text:"Wer den Shot trinkt, sucht das nächste Lied aus" },
+  { trig:"every10", text:"Wasser-Runde: alle einmal Wasser" },
+  { trig:"full", text:"Alle stehen auf" },
+  { trig:"num", n:1, text:"Die Person links trinkt mit" },
+  { trig:"ko", text:"Wer K.O. ist, macht ab jetzt die Musik" }
+];
+const ruleLabel = r => r.trig === "num" ? "Bei einer " + r.n : RULE_TRIGS[r.trig];
 
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
 const uid = () => Math.random().toString(36).slice(2, 10);
@@ -497,6 +556,10 @@ const ICON = {
   down:  svgI('<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>'),
   card:  svgI('<rect x="6" y="3" width="12" height="18" rx="2"/><path d="M10 9h4M10 13h4"/>'),
   shield:svgI('<path d="M12 3l7 3v6c0 4-3 7-7 9-4-2-7-5-7-9V6z"/>'),
+  soundOn: svgI('<path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/>'),
+  soundOff:svgI('<path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 9.5l5 5M21.5 9.5l-5 5"/>'),
+  share: svgI('<path d="M12 3v13M7 8l5-5 5 5"/><path d="M5 13v7h14v-7"/>'),
+  plus:  svgI('<path d="M12 5v14M5 12h14"/>'),
   swap:  svgI('<path d="M7 7h12l-3-3M17 17H5l3 3"/>')
 };
 
@@ -530,6 +593,7 @@ function loadPrefs(){
       const s = Object.assign(d, raw.settings); s.addons = Object.assign(DEF_SETTINGS().addons, raw.settings.addons || {});
       if (!ORDERS[s.order]) s.order = "circle";
       if (![3,4,5].includes(s.hearts)) s.hearts = 3;
+      s.rules = Array.isArray(raw.settings.rules) ? raw.settings.rules.filter(r => r && RULE_TRIGS[r.trig] && r.text).slice(0, 8) : [];
       return { settings:s, config: Array.isArray(raw.config) && raw.config.length === 6 ? raw.config : defaultGlasses() };
     }
   } catch(e){}
@@ -565,7 +629,7 @@ function photoIds(){
 }
 function loadPhotos(){ photoIds().forEach(id => { if (!photos[id]){ const d = LS.get("tw_ph_" + id); if (d) photos[id] = d; } }); }
 function pushUndo(){ undoStack.push(JSON.stringify(state)); if (undoStack.length > 50) undoStack.shift(); }
-const emit = fx => fxQ.push(fx);
+const emit = fx => { if (fx.type === "sound"){ sfx(fx.name); return; } fxQ.push(fx); };
 
 const P = id => state.players.find(p => p.id === id);
 const cur = () => state.players[state.turn];
@@ -682,7 +746,7 @@ function finish(){
 }
 function knockOut(p, cause){
   p.ko = true; p.active = false; p.koAt = state.eventId; p.streak = 0; p.hearts = 0;
-  log({ kind:"ko", pid:p.id, via:cause });
+  log({ kind:"ko", pid:p.id, via:cause }); emit({ type:"sound", name:"ko" }); houseRule("ko");
   if (cause === "doppel" || cause === "drilling") rage(6, p.id, `${p.name}. Raus durch ${cause === "doppel" ? "ein Doppel" : "einen Drilling"}. Mit dem letzten Herz.`);
   if (state.redirect && (state.redirect.target === p.id)) state.redirect = null;
   state.bag = state.bag.filter(id => id !== p.id);
@@ -695,10 +759,15 @@ function hurt(p, n, cause){
   p.hearts = Math.max(0, p.hearts - n);
   return p.hearts > 0 ? [] : knockOut(p, cause);
 }
+function houseRule(trig, n){
+  (state.settings.rules || []).filter(r => r.trig === trig && (trig !== "num" || r.n === n)).forEach(r => {
+    emit({ type:"rule", text:r.text, label:ruleLabel(r) }); log({ kind:"rule", text:r.text });
+  });
+}
 function checkFullHouse(){
   if (!state.settings.addons.full || !state.full.every(Boolean)) return;
   state.steps.unshift({ t:"allDrink", excused:[], key:uid() });
-  emit({ type:"fullhouse" }); log({ kind:"fullhouse" });
+  emit({ type:"fullhouse" }); log({ kind:"fullhouse" }); houseRule("full");
 }
 function setFill(i, pid, sabotage){
   state.full[i] = true;
@@ -731,6 +800,7 @@ function eRoll(n){
     state.steps.push({ t:"fill", glass:i, main:true });
     state.after = "pass";
   }
+  houseRule("num", n); if (state.rollId % 10 === 0) houseRule("every10");
   let run = 1; for (let k = state.rolls.length - 2; k >= 0 && state.rolls[k] === n; k--) run++;
   const A = state.settings.addons;
   if (run >= 3 && A.drilling){ p.drillings++; state.steps.push({ t:"drink", who:p.id, kurz:true, via:"drilling", key:uid() }); emit({ type:"banner", text:"Drilling!", sub:`Dreimal die ${n}. Kurzer für ${p.name}.` }); log({ kind:"drilling", pid:p.id, roll:n }); }
@@ -764,8 +834,10 @@ function eConfirm(){
           p.streak++; p.best = Math.max(p.best, p.streak);
           if (p.streak >= 4) rage(2 + p.streak, p.id, `${p.name}. ${p.streak} Gläser am Stück.`);
           if (p.streak >= 3) emit({ type:"serie", pid:p.id, n:p.streak });
+          if (p.streak === 3) houseRule("streak3");
         }
         front.push(...hurt(d, g.type === "shot" ? 2 : 1, "glass"));
+        if (g.type === "shot") houseRule("shot");
         if (g.type === "shot" && state.settings.addons.duell && others(d.id).length) front.push({ t:"pick", purpose:"duell", by:d.id });
         if (own && state.settings.addons.rache && p.active && p.streak > 0 && p.streak % 3 === 0 && others(p.id).length) front.push({ t:"pick", purpose:"rache", by:p.id });
       }
@@ -938,7 +1010,7 @@ function eAdd(name, photoId){
   if (state.settings.cards && state.phase === "game"){ state.peekQueue = [p.id]; state.peekReturn = "game"; state.phase = "peek"; }
   return p;
 }
-function eEnd(){ state.phase = "end"; state.steps = []; state.after = null; state.joining = false; state.redirect = null; state.recapPending = true; }
+function eEnd(){ state.phase = "end"; state.steps = []; state.after = null; state.joining = false; state.redirect = null; state.recapPending = true; if (state.winners) emit({ type:"sound", name:"win" }); }
 function eRematch(){
   state.players.forEach(p => Object.assign(p, { active:true, ko:false, koAt:0, hearts:state.settings.hearts, drinks:0, shots:0, extras:0, streak:0, best:0,
     card:null, cardUsed:false, jokerUsed:false, konters:0, drillings:0, nearLast:0, nearRefill:0 }));
@@ -1062,11 +1134,17 @@ function render(){
   if (headless) return;
   app.className = "app " + state.phase;
   document.body.classList.toggle("lock", ["game","join","peek"].includes(state.phase));
-  if (state.phase === "intro"){ setTheme(null); renderIntro(); }
-  else if (state.phase === "join"){ setTheme(PALETTE[state.players.length % PALETTE.length]); renderJoin(); }
+  if (state.phase === "intro"){ setTheme(null); renderIntro(); if (!tourSeen && !LS.get("tw_tour")){ tourSeen = true; openTour(); } }
+  else if (state.phase === "join"){ setTheme(PALETTE[state.players.length % PALETTE.length]); renderJoin(); fitJoin(); }
   else if (state.phase === "peek"){ setTheme(colorOf(P(state.peekQueue[0]))); renderPeek(); }
   else if (state.phase === "game"){ setTheme(colorOf(cur())); renderGame(); fitStage(); }
   else { setTheme(null); renderEnd(); }
+}
+/* Eintragen: bei wenig Platz schrittweise verkleinern, notfalls scrollen statt abschneiden */
+function fitJoin(){
+  app.classList.remove("jt", "jt2", "jscroll");
+  const over = () => app.scrollHeight > app.clientHeight + 1;
+  if (over()){ app.classList.add("jt"); if (over()){ app.classList.add("jt2"); if (over()) app.classList.add("jscroll"); } }
 }
 /* Prüft, ob der Inhalt in der Mitte Platz hat, und verkleinert sonst schrittweise */
 function fitStage(){
@@ -1081,7 +1159,7 @@ function fitStage(){
   };
   if (over()){ app.classList.add("tight"); if (over()){ app.classList.add("tighter"); if (over()) app.classList.add("tightest"); } }
 }
-window.addEventListener("resize", () => { if (state.phase === "game" && !rolling) fitStage(); });
+window.addEventListener("resize", () => { if (state.phase === "game" && !rolling) fitStage(); if (state.phase === "join") fitJoin(); });
 
 /* ---- Startbildschirm ---- */
 function sw(id, on, label){ return `<button class="switch" role="switch" aria-checked="${!!on}" aria-label="${esc(label)}" data-act="sw" data-k="${id}"></button>`; }
@@ -1119,9 +1197,22 @@ function renderIntro(){
       <span class="t">${n}</span>${sw("a_" + k, S.addons[k], n)}
       <span class="d">${d}</span>
     </div>`).join("")}
+    <div class="opt">
+      <span class="t">Sounds</span>${sw("sound", SND.on, "Sounds")}
+      <span class="d">Würfelklackern, Gluckern, Alarm und Fanfaren. Im Spiel oben über das Lautsprecher-Symbol umschaltbar.</span>
+    </div>
+  </section>
+
+  <section class="setup" aria-label="Hausregeln">
+    <span class="eyebrow">Hausregeln</span>
+    <p class="d soft" style="font-size:14px;margin-bottom:6px">Eure eigenen Regeln. Das Handy zeigt sie im richtigen Moment an, ihr setzt sie am Tisch um.</p>
+    ${(S.rules || []).map((r, i) => `
+    <div class="rule-row"><div class="rule-txt"><span class="rule-trig">${esc(ruleLabel(r))}</span><span>${esc(r.text)}</span></div><button class="ib rule-del" data-act="rule-del" data-i="${i}" aria-label="Regel löschen">${ICON.close}</button></div>`).join("")}
+    ${(S.rules || []).length < 8 ? `<button class="btn alt" style="margin-top:10px" data-act="rule-new">${ICON.plus} Hausregel hinzufügen</button>` : `<p class="note">Maximal 8 Hausregeln.</p>`}
   </section>
 
   <div class="startbar"><button class="btn" data-act="start-join">Los geht's</button></div>
+  ${canShareCard() ? `<button class="btn alt" data-act="share-link">${ICON.share} Spiel mit Freunden teilen</button>` : ""}
 
   <details class="more" id="glass-card">
     <summary>Gläser anpassen <span class="soft" style="font-weight:600;margin-left:auto;margin-right:14px;font-size:14px">${6 - shots} Gläser, ${shots} Shot${shots === 1 ? "" : "s"}</span></summary>
@@ -1147,6 +1238,7 @@ function renderIntro(){
       <li>Wasser zwischendurch hilft. Und niemand muss.</li>
     </ul>
     <div class="cardlist">${Object.values(CARDS).map(c => `<div><span class="tag ${c.kind}">${c.kind === "attack" ? "Angriff" : "Konter"}</span><b>${c.name}</b><span>${c.text}</span></div>`).join("")}</div>
+    <button class="btn alt" style="margin-top:14px" data-act="tour">Einführung ansehen</button>
   </details>
   <p class="credit"><svg viewBox="0 0 64 80" aria-hidden="true"><defs><clipPath id="cr"><path d="M17 34 H47 L44 72 H20 Z"/></clipPath></defs><rect clip-path="url(#cr)" x="0" y="46" width="64" height="30" fill="var(--drink)"/><path d="M17 34 H47 L44 72 H20 Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/></svg><span>created by</span><b>Lion</b></p>
   ${counting ? `<p class="privacy">Diese Seite zählt Aufrufe und Spielstarts anonym mit GoatCounter, ohne Cookies. Namen, Fotos und Spielstände bleiben auf deinem Handy.</p>` : ""}`;
@@ -1296,6 +1388,7 @@ function renderGame(){
     <div class="who"><span class="eyebrow">ist dran</span><div class="name">${esc(p.name)}</div></div>
     <div class="icons">
       <button class="ib" data-act="undo" aria-label="Rückgängig" ${undoStack.length ? "" : "disabled"}>${ICON.undo}</button>
+      <button class="ib" data-act="sound" aria-label="${SND.on ? "Ton aus" : "Ton an"}" aria-pressed="${SND.on}">${SND.on ? ICON.soundOn : ICON.soundOff}</button>
       <button class="ib" data-act="board" aria-label="Rangliste">${ICON.board}</button>
       <button class="ib" data-act="menu" aria-label="Menü">${ICON.menu}</button>
     </div>
@@ -1364,6 +1457,7 @@ function renderEnd(){
   ${aw.length ? `<div class="awards">${aw.map(a => `<div class="award"><span class="eyebrow">${a[0]}</span><span class="val">${a[2]}</span><div class="who">${avatar(a[1],"s")}<span>${esc(a[1].name)}</span></div></div>`).join("")}</div>` : ""}
   ${rg ? `<div class="rage">${avatar(rg,"m")}<div class="txt"><span class="lbl">Rage-Moment des Abends</span><span class="q">${esc(state.rage.text)}</span></div></div>` : ""}
   ${near.length ? `<div class="section"><span class="eyebrow">Knapp daneben</span><div class="near">${near.map(t => `<p>${t}</p>`).join("")}</div></div>` : ""}
+  ${shareSection()}
   <div class="section"><span class="eyebrow">Rangliste</span><div class="panel">${rankRows()}</div></div>
   ${state.settings.cards ? `<div class="section"><span class="eyebrow">Die Karten</span><div class="panel"><div class="rows">${state.players.map(p => `<div class="r">${avatar(p,"s")}<span class="nm">${esc(p.name)}<small>${p.card ? (p.cardUsed ? "gespielt" : "nie gespielt") : "keine Karte"}</small></span>${p.card ? `<span class="tag ${CARDS[p.card].kind}">${CARDS[p.card].name}</span>` : ""}</div>`).join("")}</div></div></div>` : ""}
   <div class="section"><span class="eyebrow">Beweisfotos</span>
@@ -1381,6 +1475,7 @@ function renderEnd(){
     <button class="btn alt" data-act="rematch">Neue Runde, gleiche Leute</button>
     <button class="btn alt" data-act="reset" data-confirm="Sicher? Nochmal tippen">Alles neu</button>
   </div>`;
+  renderShare();
 }
 
 /* ---- Sheets ---- */
@@ -1437,6 +1532,7 @@ function menuSheet(){
     </form>
     <div class="stack">
       <button class="btn alt" data-act="rules">Regeln und Karten</button>
+      ${canShareCard() ? `<button class="btn alt" data-act="share-link">${ICON.share} Spiel mit Freunden teilen</button>` : ""}
       <button class="btn alt" data-act="history">Verlauf</button>
       <button class="btn" data-act="end">Abend beenden</button>
       <button class="btn alt" data-act="reset" data-confirm="Sicher? Nochmal tippen">Spiel abbrechen</button>
@@ -1454,7 +1550,12 @@ function pumpFx(){
   if (state.spin){ fxQ.push({ type:"spin", id:state.spin.id, slow:state.spin.slow }); state.spin = null; save(); }
   if (state.phase === "end" && state.recapPending){ fxQ.push({ type:"recap" }); state.recapPending = false; save(); }
   if (fxBusy || !fxQ.length || headless) return;
-  showFx(fxQ.shift());
+  const f = fxQ.shift();
+  if (f.type === "rule"){
+    fxShell(`<span class="crown" style="color:var(--drink);font-family:var(--display);font-weight:800;letter-spacing:.2em;font-size:14px;text-transform:uppercase">Hausregel</span><div class="big" style="font-size:clamp(38px,11vw,64px)">${esc(f.text)}</div><div class="sub">${esc(f.label)}</div>`, 2600);
+    sfx("rule"); buzz([40,40,40]); return;
+  }
+  showFx(f);
 }
 function fxDone(){ fxRoot.innerHTML = ""; fxBusy = false; clearTimeout(fxDone._t); (fxDone._iv || []).forEach(clearInterval); fxDone._iv = []; pumpFx(); }
 function fxShell(html, ms, cls){
@@ -1467,16 +1568,16 @@ function showFx(f){
   if (!f) return;
   fxDone._iv = fxDone._iv || [];
   if (f.type === "banner"){
-    fxShell(`<div class="big">${esc(f.text)}</div><div class="sub">${esc(f.sub || "")}</div>`, 1500);
+    fxShell(`<div class="big">${esc(f.text)}</div><div class="sub">${esc(f.sub || "")}</div>`, 1500); sfx("tusch");
     buzz([60,40,60]);
   } else if (f.type === "card"){
     const p = P(f.pid); const c = CARDS[f.card]; const t = f.target && P(f.target);
     fxShell(`<div class="who">${avatar(p,"s")}${esc(p ? p.name : "")} spielt</div>
       <div class="bigcard cardface"><span class="tag ${c.kind}">${c.kind === "attack" ? "Angriff" : "Konter"}</span><span class="cn">${c.name}</span><span class="ct">${c.text}</span></div>
       ${t ? `<div class="sub">${f.card === "spiegel" ? "zurück an " : "für "}${esc(t.name)}</div>` : ""}`, 2300);
-    buzz([40,30,90]);
+    buzz([40,30,90]); sfx("card");
   } else if (f.type === "fullhouse"){
-    const ps = active();
+    const ps = active(); sfx("tusch");
     fxShell(`<div class="show" id="fx-show">${slideFrames(ps[0])}</div><div class="big">Alle trinken!</div><div class="sub">Volles Haus · jeder einen Kurzen</div>`, 2600);
     let k = 0; const el = document.getElementById("fx-show");
     fxDone._iv.push(setInterval(() => { k++; if (el && ps.length) el.innerHTML = slideFrames(ps[k % ps.length]); }, 150));
@@ -1498,7 +1599,8 @@ function showFx(f){
       step++;
       const q = step >= total ? target : ps[k++ % ps.length];
       if (el) el.innerHTML = slideFrames(q); if (nm) nm.textContent = q.name;
-      if (step >= total){ if (nm) nm.textContent = q.name + " ist dran!"; buzz(50); fxDone._t = setTimeout(fxDone, 1100); return; }
+      if (step >= total){ if (nm) nm.textContent = q.name + " ist dran!"; buzz(50); sfx("ding"); fxDone._t = setTimeout(fxDone, 1100); return; }
+      sfx("tick");
       const dly = 60 + Math.pow(step / total, 3) * (f.slow ? 520 : 300);
       fxDone._t = setTimeout(tick, dly);
     };
@@ -1515,7 +1617,7 @@ function showFx(f){
     const show = () => {
       if (k >= slides.length){ fxDone(); return; }
       const last = W.length && k === slides.length - 1;
-      fxShell(slides[k], 0, last ? "win" : ""); k++;
+      fxShell(slides[k], 0, last ? "win" : ""); if (last) sfx("win"); k++;
       fxDone._t = setTimeout(show, last ? 3200 : 1500);
     };
     fxBusy = true; show();
@@ -1535,11 +1637,12 @@ function doRoll(){
     else { const f = [0,1,2,3,4,5].filter(i => fullNow[i]); if (f.length){ const sh = f.filter(i => state.glasses[i].type === "shot"); const pool = sh.length ? sh : f; tease = pool[rndInt(pool.length)] + 1; } }
   }
   const die = document.getElementById("die");
+  sfx("roll");
   const done = () => {
     rolling = false;
     act(() => eRoll(n));
     const s = state.steps[0];
-    if (s && s.t === "drink"){ buzz([90,60,90]); const f = document.getElementById("flash"); f.classList.remove("on"); void f.offsetWidth; f.classList.add("on"); }
+    if (s && s.t === "drink"){ buzz([90,60,90]); sfx("drink"); const f = document.getElementById("flash"); f.classList.remove("on"); void f.offsetWidth; f.classList.add("on"); }
     else buzz(25);
   };
   if (!die || reduced){ done(); return; }
@@ -1551,7 +1654,8 @@ function doRoll(){
     setTimeout(done, 720);
   } else {
     const gEl = () => document.querySelector(`.g[data-i="${tease - 1}"]`);
-    setTimeout(() => { clearInterval(iv); die.classList.remove("rolling"); die.innerHTML = dieFace(tease); die.classList.add("teeter"); const g = gEl(); g && g.classList.add("tease"); }, 620);
+    setTimeout(() => { clearInterval(iv); die.classList.remove("rolling"); die.innerHTML = dieFace(tease); die.classList.add("teeter"); const g = gEl(); g && g.classList.add("tease"); sfx("tick"); }, 620);
+    setTimeout(() => sfx("tick"), 1000); setTimeout(() => sfx("tick"), 1300);
     setTimeout(() => { die.classList.remove("teeter"); die.classList.add("tip"); }, 1520);
     setTimeout(() => { die.classList.remove("tip"); die.innerHTML = dieFace(n); const g = gEl(); g && g.classList.remove("tease"); }, 1800);
     setTimeout(done, 1950);
@@ -1742,6 +1846,225 @@ async function saveOne(photoId){
   try { await saveFile(f.name.split("/").pop(), await fileBlob(f)); } catch(e){ dlError(e); }
 }
 
+/* ---- Sounds (selbst erzeugt, keine Dateien) ---- */
+const SND = { on: LS.get("tw_sound") !== "0", ctx:null, count:0 };
+function actx(){
+  try {
+    if (!SND.ctx){ const C = window.AudioContext || window.webkitAudioContext; if (!C) return null; SND.ctx = new C(); }
+    if (SND.ctx.state === "suspended") SND.ctx.resume();
+    return SND.ctx;
+  } catch(e){ return null; }
+}
+document.addEventListener("pointerdown", () => { if (SND.on) actx(); }, { once:true, capture:true });
+function sEnv(g, t, a, d, v){ g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(v, t + a); g.gain.exponentialRampToValueAtTime(0.0001, t + a + d); }
+function sTone(c, f, t, d, type, v, f2){
+  const o = c.createOscillator(), g = c.createGain(); o.type = type || "sine";
+  o.frequency.setValueAtTime(f, t); if (f2) o.frequency.exponentialRampToValueAtTime(f2, t + d);
+  sEnv(g, t, 0.01, d, v || 0.2); o.connect(g); g.connect(c.destination); o.start(t); o.stop(t + d + 0.05);
+}
+function sNoise(c, t, d, v, freq, q){
+  const len = Math.max(1, Math.floor(c.sampleRate * d)); const b = c.createBuffer(1, len, c.sampleRate); const ch = b.getChannelData(0);
+  for (let i = 0; i < len; i++) ch[i] = Math.random() * 2 - 1;
+  const src = c.createBufferSource(); src.buffer = b; const fl = c.createBiquadFilter(); fl.type = "bandpass"; fl.frequency.value = freq || 2000; fl.Q.value = q || 1;
+  const g = c.createGain(); sEnv(g, t, 0.003, d, v || 0.3); src.connect(fl); fl.connect(g); g.connect(c.destination); src.start(t); src.stop(t + d + 0.02);
+}
+function sfx(name){
+  if (!SND.on || headless) return;
+  const c = actx(); if (!c) return;
+  SND.count++; SND.last = name;
+  const t = c.currentTime + 0.01;
+  try {
+    switch (name){
+      case "roll": for (let k = 0; k < 7; k++) sNoise(c, t + k * 0.08 + Math.random() * 0.03, 0.04, 0.35, 2500 + Math.random() * 1500, 3); break;
+      case "tick": sNoise(c, t, 0.03, 0.25, 3500, 4); break;
+      case "fill": [0, 0.09, 0.18].forEach((dt, i) => sTone(c, 320 + i * 90, t + dt, 0.09, "sine", 0.25, 520 + i * 90)); break;
+      case "drink": [0, 0.2].forEach(dt => { sTone(c, 880, t + dt, 0.1, "square", 0.1); sTone(c, 660, t + dt + 0.1, 0.1, "square", 0.1); }); break;
+      case "tusch": [523, 659, 784, 1047].forEach((f, i) => sTone(c, f, t + i * 0.07, 0.35, "triangle", 0.18)); break;
+      case "card": sNoise(c, t, 0.35, 0.22, 900, 0.7); sTone(c, 600, t + 0.05, 0.25, "sine", 0.08, 1200); break;
+      case "ko": sTone(c, 110, t, 1.6, "sine", 0.4); sTone(c, 165, t, 1.2, "sine", 0.18); sTone(c, 55, t, 1.0, "triangle", 0.2); break;
+      case "win": [523, 659, 784, 1047, 784, 1047].forEach((f, i) => sTone(c, f, t + i * 0.12, 0.3, "triangle", 0.2)); break;
+      case "rule": sTone(c, 1046, t, 0.6, "sine", 0.2); sTone(c, 1568, t + 0.08, 0.5, "sine", 0.12); break;
+      case "ding": sTone(c, 1320, t, 0.3, "sine", 0.18); break;
+    }
+  } catch(e){}
+}
+
+/* ---- Hausregeln: Eingabe ---- */
+function ruleSheet(){
+  openSheet("Hausregel", `
+  <form class="stack" id="rule-form" data-trig="num" data-n="3" autocomplete="off">
+    <span class="eyebrow">Wann?</span>
+    <div class="chips">${Object.keys(RULE_TRIGS).map(k => `<button type="button" class="chip" data-act="rule-trig" data-k="${k}">${RULE_TRIGS[k]}</button>`).join("")}</div>
+    <div class="seg" id="rule-nums" role="group" aria-label="Zahl">${[1,2,3,4,5,6].map(n => `<button type="button" data-act="rule-n" data-k="${n}">${n}</button>`).join("")}</div>
+    <span class="eyebrow">Was passiert?</span>
+    <input class="field" id="rule-text" maxlength="70" placeholder="z. B. Alle stoßen an">
+    <button type="submit" class="btn">Regel speichern</button>
+    <span class="eyebrow">Ideen zum Antippen</span>
+    <div class="chips">${RULE_IDEAS.map((r, i) => `<button type="button" class="chip idea" data-act="rule-idea" data-i="${i}"><b>${esc(ruleLabel(r))}:</b> ${esc(r.text)}</button>`).join("")}</div>
+  </form>`);
+  syncRuleForm();
+}
+function syncRuleForm(){
+  const f = document.getElementById("rule-form"); if (!f) return;
+  const trig = f.dataset.trig, n = f.dataset.n;
+  f.querySelectorAll("[data-act=rule-trig]").forEach(b => b.setAttribute("aria-pressed", b.dataset.k === trig));
+  const nums = document.getElementById("rule-nums"); nums.hidden = trig !== "num";
+  nums.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", b.dataset.k === String(n)));
+}
+
+/* ---- Einführung beim ersten Start ---- */
+let tourSeen = false, tourI = 0;
+const TOUR = [
+  { t:"So geht's", d:"Leeres Glas gewürfelt: auffüllen und das Handy weitergeben. Volles Glas: austrinken und sofort nochmal würfeln.", v:"glasses" },
+  { t:"Das Handy wandert", d:"Jeder trägt sich ein, macht ein Selfie und würfelt direkt los. Ist das Handy wieder beim Ersten: „Alle sind drin“ tippen.", v:"pass" },
+  { t:"Karten und Konter", d:"Viele bekommen eine geheime Karte: gedrückt halten zum Ansehen. Im eigenen Zug „Karte spielen“. Muss jemand trinken: „Konter?“ und aufs eigene Bild tippen.", v:"card" },
+  { t:"Extras", d:"Add-ons, K.O.-Modus und Hausregeln stellst du vor dem Start ein. Wer nicht mehr mag, tippt unten auf sich und steigt aus. Wasser zwischendurch hilft.", v:"extras" }
+];
+function openTour(){ tourI = 0; renderTour(); }
+function closeTour(){ const r = document.getElementById("tour-root"); if (r) r.innerHTML = ""; LS.set("tw_tour", "1"); }
+function renderTour(){
+  let root = document.getElementById("tour-root");
+  if (!root){ root = document.createElement("div"); root.id = "tour-root"; document.body.appendChild(root); }
+  const s = TOUR[tourI], last = tourI === TOUR.length - 1;
+  const vis = {
+    glasses: `<div class="tour-glasses">${[0,1,2].map(i => glassHTML(i, "", true)).join("")}</div>`,
+    pass: `<div class="tour-pass">${["L","H","J"].map((x, i) => `<span class="av av-m" style="--c:${PALETTE[i]}">${x}</span>`).join('<span class="arr">→</span>')}</div>`,
+    card: `<div class="tour-cards"><div class="mc back">?</div><span class="arr">→</span><div class="mc front"><span class="tag attack">Angriff</span><b>Sabotage</b></div></div>`,
+    extras: `<div class="tour-chips"><span>K.O.-Modus</span><span>Volles Haus</span><span>Joker</span><span>Hausregeln</span></div>`
+  }[s.v];
+  root.innerHTML = `<div class="tour" role="dialog" aria-label="Einführung"><div class="tour-card" id="tour-card">
+    <div class="tour-top"><span class="eyebrow">Einführung · ${tourI + 1}/${TOUR.length}</span><button class="tour-skip" data-tour="skip">Überspringen</button></div>
+    <div class="tour-vis">${vis}</div>
+    <h2>${s.t}</h2><p>${s.d}</p>
+    <div class="row">${tourI > 0 ? `<button class="btn alt" data-tour="prev">Zurück</button>` : ""}<button class="btn" data-tour="next">${last ? "Los geht's" : "Weiter"}</button></div>
+  </div></div>`;
+  const card = document.getElementById("tour-card"); let x0 = null;
+  card.addEventListener("pointerdown", e => { x0 = e.clientX; });
+  card.addEventListener("pointerup", e => { if (x0 == null) return; const dx = e.clientX - x0; x0 = null; if (dx < -50 && tourI < TOUR.length - 1){ tourI++; renderTour(); } else if (dx > 50 && tourI > 0){ tourI--; renderTour(); } });
+}
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-tour]"); if (!b) return;
+  const a = b.dataset.tour;
+  if (a === "skip") closeTour();
+  else if (a === "prev"){ tourI = Math.max(0, tourI - 1); renderTour(); }
+  else if (a === "next"){ if (tourI >= TOUR.length - 1) closeTour(); else { tourI++; renderTour(); } }
+});
+
+/* ---- Teilen-Karte (nur auf der eigenen Webseite) ---- */
+const SHARE_LINK = "lionstone3010.github.io/trinkwuerfel";
+const canShareCard = () => !inSandbox;
+const shareState = { kind:"stand", faces:false };
+function shareSection(){
+  if (!canShareCard()) return "";
+  return `<section class="section share-box"><span class="eyebrow">Teilen</span><div class="panel" id="share-inner" style="padding:14px 16px"></div></section>`;
+}
+function renderShare(){
+  const box = document.getElementById("share-inner"); if (!box) return;
+  if (!state.rage && shareState.kind === "rage") shareState.kind = "stand";
+  const kinds = [["stand","Endstand"]].concat(state.rage ? [["rage","Rage-Moment"]] : []);
+  box.innerHTML = `
+    ${kinds.length > 1 ? `<div class="seg" role="group" aria-label="Bild">${kinds.map(([k, n]) => `<button data-act="share-kind" data-k="${k}" aria-pressed="${shareState.kind === k}">${n}</button>`).join("")}</div>` : ""}
+    <div class="opt" style="border-top:0;padding:12px 0 6px"><span class="t">Mit Selfies</span><button class="switch" role="switch" aria-checked="${shareState.faces}" aria-label="Mit Selfies" data-act="share-faces"></button>
+      <span class="d">Nur einschalten, wenn alle einverstanden sind.</span></div>
+    <div class="share-prev"><img id="share-img" alt="Vorschau des Teilen-Bildes"></div>
+    <button class="btn" data-act="share-go" style="margin-top:12px">${ICON.share} Bild teilen</button>
+    <p class="dl-msg" id="share-msg" aria-live="polite"></p>`;
+  const token = ++renderShare.t;
+  drawShare().then(c => { const img = document.getElementById("share-img"); if (img && c && token === renderShare.t) img.src = c.toDataURL("image/jpeg", 0.82); });
+}
+renderShare.t = 0;
+function sWrap(x, text, maxW){
+  const words = String(text).split(/\s+/); const lines = []; let line = "";
+  words.forEach(w => { const tst = line ? line + " " + w : w; if (x.measureText(tst).width > maxW && line){ lines.push(line); line = w; } else line = tst; });
+  if (line) lines.push(line); return lines;
+}
+async function sAvatar(x, p, cx, cy, r, faces){
+  x.save(); x.beginPath(); x.arc(cx, cy, r + Math.max(4, r * 0.06), 0, Math.PI * 2); x.fillStyle = "#ffffff"; x.fill();
+  x.beginPath(); x.arc(cx, cy, r, 0, Math.PI * 2); x.closePath(); x.fillStyle = colorOf(p); x.fill(); x.clip();
+  const ph = faces && p && p.photo && photos[p.photo];
+  if (ph){ try { const im = await loadImg(ph); const s = Math.min(im.naturalWidth, im.naturalHeight); x.drawImage(im, (im.naturalWidth - s) / 2, (im.naturalHeight - s) / 2, s, s, cx - r, cy - r, r * 2, r * 2); } catch(e){} }
+  else { x.fillStyle = "#ffffff"; x.font = `800 ${Math.round(r * 1.05)}px ${SH_DISP}`; x.textAlign = "center"; x.textBaseline = "middle"; x.fillText(((p && p.name) || "?").trim().charAt(0).toUpperCase(), cx, cy + r * 0.04); }
+  x.restore();
+}
+const SH_DISP = '"Bricolage Grotesque", "Arial Black", Impact, sans-serif', SH_BODY = '"Manrope", system-ui, -apple-system, sans-serif';
+async function drawShare(){
+  try { if (document.fonts && document.fonts.ready) await document.fonts.ready; } catch(e){}
+  const W = 1080, H = 1920, faces = shareState.faces;
+  const c = document.createElement("canvas"); c.width = W; c.height = H; const x = c.getContext("2d");
+  const g = x.createLinearGradient(0, 0, W, H); g.addColorStop(0, "#1c1d26"); g.addColorStop(1, "#07080c"); x.fillStyle = g; x.fillRect(0, 0, W, H);
+  const rg = x.createRadialGradient(W / 2, H * 0.4, 10, W / 2, H * 0.4, 820); rg.addColorStop(0, "rgba(255,182,59,.30)"); rg.addColorStop(1, "rgba(255,182,59,0)"); x.fillStyle = rg; x.fillRect(0, 0, W, H);
+  x.textBaseline = "middle"; x.textAlign = "left";
+  const icon = await loadImg("icons/icon-192.png").catch(() => null);
+  if (icon){ x.save(); x.beginPath(); x.roundRect ? x.roundRect(90, 110, 120, 120, 28) : x.rect(90, 110, 120, 120); x.clip(); x.drawImage(icon, 90, 110, 120, 120); x.restore(); }
+  const tx = icon ? 240 : 90;
+  x.fillStyle = "#ffffff"; x.font = `800 78px ${SH_DISP}`; x.fillText("Trinkwürfel", tx, 156);
+  x.fillStyle = "rgba(255,255,255,.6)"; x.font = `700 32px ${SH_BODY}`;
+  const total = state.players.reduce((a, p) => a + tot(p), 0);
+  x.fillText(new Date().toLocaleDateString("de-DE", { day:"numeric", month:"long", year:"numeric" }) + " · " + state.players.length + " Leute · " + total + (total === 1 ? " Getränk" : " Getränke"), tx, 214);
+  x.textAlign = "center";
+  if (shareState.kind === "rage" && state.rage){
+    const p = P(state.rage.pid);
+    x.fillStyle = "#ff5c48"; x.font = `800 40px ${SH_BODY}`; x.fillText("RAGE-MOMENT DES ABENDS", W / 2, 470);
+    await sAvatar(x, p, W / 2, 760, 210, faces);
+    x.fillStyle = "#ffffff"; x.font = `800 74px ${SH_DISP}`;
+    const lines = sWrap(x, state.rage.text, 900).slice(0, 6);
+    lines.forEach((l, i) => x.fillText(l, W / 2, 1110 + i * 92));
+  } else {
+    const ranked = state.players.slice().sort((a, b) => (tot(b) - tot(a)) || (b.shots - a.shots));
+    const Wn = (state.winners || []).map(P).filter(Boolean);
+    x.fillStyle = "#ffc84a"; x.font = `800 40px ${SH_BODY}`; x.fillText(Wn.length ? "LAST MAN STANDING" : "ENDSTAND", W / 2, 400);
+    if (Wn.length){
+      await sAvatar(x, Wn[0], W / 2, 610, 170, faces);
+      x.fillStyle = "#ffffff"; x.font = `800 92px ${SH_DISP}`; x.fillText(Wn.map(p => p.name).join(" & "), W / 2, 870);
+    } else {
+      const pod = [[ranked[1], 250, 640, 110], [ranked[0], 540, 600, 150], [ranked[2], 830, 640, 110]];
+      for (const [p, cx, cy, r] of pod){ if (!p) continue; await sAvatar(x, p, cx, cy, r, faces);
+        x.fillStyle = "#ffffff"; x.font = `800 ${r > 120 ? 58 : 44}px ${SH_DISP}`; x.fillText(p.name.length > 12 ? p.name.slice(0, 11) + "…" : p.name, cx, cy + r + 62);
+        x.fillStyle = "#ffc84a"; x.font = `800 40px ${SH_BODY}`; x.fillText(tot(p) + (tot(p) === 1 ? " Getränk" : " Getränke"), cx, cy + r + 116); }
+    }
+    let y = Wn.length ? 1010 : 1000;
+    x.textAlign = "left";
+    for (let i = 0; i < Math.min(6, ranked.length); i++){
+      const p = ranked[i];
+      x.fillStyle = "rgba(255,255,255,.07)"; if (x.roundRect){ x.beginPath(); x.roundRect(90, y, 900, 104, 28); x.fill(); } else x.fillRect(90, y, 900, 104);
+      x.fillStyle = "rgba(255,255,255,.5)"; x.font = `800 40px ${SH_DISP}`; x.fillText(String(i + 1), 128, y + 54);
+      await sAvatar(x, p, 222, y + 52, 34, faces);
+      x.fillStyle = "#ffffff"; x.font = `800 42px ${SH_BODY}`; x.fillText(p.name.length > 16 ? p.name.slice(0, 15) + "…" : p.name, 282, y + 54);
+      x.textAlign = "right"; x.fillStyle = "#ffc84a"; x.font = `800 48px ${SH_DISP}`; x.fillText(String(tot(p)), 950, y + 54); x.textAlign = "left";
+      y += 122;
+    }
+    x.textAlign = "center";
+  }
+  x.fillStyle = "rgba(255,255,255,.6)"; x.font = `700 32px ${SH_BODY}`; x.fillText("Jetzt selbst spielen", W / 2, H - 190);
+  x.fillStyle = "#ffc84a"; x.font = `800 44px ${SH_BODY}`; x.fillText(SHARE_LINK, W / 2, H - 130);
+  return c;
+}
+const SHARE_URL = "https://lionstone3010.github.io/trinkwuerfel/";
+async function shareLink(){
+  const data = { title:"Trinkwürfel", text:"Lust auf ein Trinkspiel? Trinkwürfel: 6 Gläser, 1 Würfel, direkt im Handy-Browser.", url:SHARE_URL };
+  try {
+    if (navigator.share){ await navigator.share(data); return; }
+  } catch(e){ if (e && e.name === "AbortError") return; }
+  try { await navigator.clipboard.writeText(SHARE_URL); toast("Link kopiert. Jetzt einfach in den Chat einfügen."); }
+  catch(e){ toast("Link: " + SHARE_URL.replace("https://", "")); }
+}
+async function doShare(btn){
+  const msg = t => { const m = document.getElementById("share-msg"); if (m) m.textContent = t; };
+  btn.disabled = true; msg("Bild wird erstellt …");
+  try {
+    const c = await drawShare();
+    const blob = await new Promise(r => c.toBlob(r, "image/png"));
+    const file = new File([blob], shareState.kind === "rage" ? "trinkwuerfel-rage-moment.png" : "trinkwuerfel-endstand.png", { type:"image/png" });
+    if (navigator.canShare && navigator.canShare({ files:[file] })){
+      msg("");
+      await navigator.share({ files:[file], title:"Trinkwürfel" }).catch(err => { if (err && err.name !== "AbortError") throw err; });
+    } else {
+      await saveFile(file.name, blob); msg("Bild gespeichert. Du findest es bei deinen Downloads.");
+    }
+  } catch(e){ msg("Teilen hat nicht geklappt. Versuch es nochmal."); }
+  btn.disabled = false;
+}
+
 /* ---- Bedienung ---- */
 function armed(btn){
   if (!btn.dataset.confirm || btn.dataset.armed === "1") return true;
@@ -1763,7 +2086,8 @@ document.addEventListener("click", async e => {
   switch (act_){
     case "sw": {
       const k = el.dataset.k;
-      if (k === "ko") S.ko = !S.ko; else if (k === "cards") S.cards = !S.cards; else if (k.startsWith("a_")) S.addons[k.slice(2)] = !S.addons[k.slice(2)];
+      if (k === "sound"){ SND.on = !SND.on; LS.set("tw_sound", SND.on ? "1" : "0"); if (SND.on) sfx("ding"); }
+      else if (k === "ko") S.ko = !S.ko; else if (k === "cards") S.cards = !S.cards; else if (k.startsWith("a_")) S.addons[k.slice(2)] = !S.addons[k.slice(2)];
       savePrefs(); save(); const y = window.scrollY; render(); window.scrollTo(0, y); break;
     }
     case "order": S.order = el.dataset.k; savePrefs(); save(); { const y = window.scrollY; render(); window.scrollTo(0, y); } break;
@@ -1778,7 +2102,18 @@ document.addEventListener("click", async e => {
     case "all-in": act(() => eAllIn()); keepAwake(); break;
     case "peek-done": act(() => ePeekDone()); break;
     case "roll": doRoll(); break;
-    case "confirm": act(() => eConfirm()); window.scrollTo(0,0); break;
+    case "confirm": { const s0 = state.steps[0]; if (s0 && s0.t === "fill") sfx("fill"); act(() => eConfirm()); window.scrollTo(0,0); break; }
+    case "sound": SND.on = !SND.on; LS.set("tw_sound", SND.on ? "1" : "0"); if (SND.on) sfx("ding"); render(); break;
+    case "rule-new": ruleSheet(); break;
+    case "rule-idea": { const f = document.getElementById("rule-form"); const r = RULE_IDEAS[+el.dataset.i]; f.dataset.trig = r.trig; f.dataset.n = r.n || 3; document.getElementById("rule-text").value = r.text; syncRuleForm(); break; }
+    case "rule-trig": { const f = document.getElementById("rule-form"); f.dataset.trig = el.dataset.k; syncRuleForm(); break; }
+    case "rule-n": { const f = document.getElementById("rule-form"); f.dataset.n = el.dataset.k; syncRuleForm(); break; }
+    case "rule-del": state.settings.rules.splice(+el.dataset.i, 1); savePrefs(); save(); { const y = window.scrollY; render(); window.scrollTo(0, y); } break;
+    case "tour": openTour(); break;
+    case "share-kind": shareState.kind = el.dataset.k; renderShare(); break;
+    case "share-faces": shareState.faces = !shareState.faces; renderShare(); break;
+    case "share-go": doShare(el); break;
+    case "share-link": shareLink(); break;
     case "card": {
       const r = act(() => ePlayCard());
       if (r === "none") toast("Du hast keine Karte"); else if (r === "mismatch") toast("Deine Karte passt hier nicht");
@@ -1841,6 +2176,14 @@ document.addEventListener("input", e => {
 });
 document.addEventListener("submit", async e => {
   e.preventDefault();
+  if (e.target.id === "rule-form"){
+    const f = e.target; const text = document.getElementById("rule-text").value.trim();
+    if (!text){ document.getElementById("rule-text").focus(); return; }
+    const r = { trig:f.dataset.trig, text:text.slice(0, 70) }; if (r.trig === "num") r.n = +f.dataset.n || 3;
+    state.settings.rules = (state.settings.rules || []).concat([r]).slice(0, 8);
+    savePrefs(); save(); closeSheet(); const y = window.scrollY; render(); window.scrollTo(0, y);
+    return;
+  }
   if (e.target.id === "join-form"){
     const name = draft.name.trim(); if (!name) return;
     let pid = null; if (draft.photo){ pid = "av_" + uid(); savePhoto(pid, draft.photo); }
@@ -1879,7 +2222,8 @@ window.__tw = {
   setHeadless(v){ headless = !!v; }, fxQ, rnd6, rndInt, makeGif, lzw, photos,
   E:{ startJoin:eStartJoin, join:eJoin, peekDone:ePeekDone, allIn:eAllIn, roll:eRoll, confirm:eConfirm, joker:eJoker, canJoker, playCard:ePlayCard,
       pickPlayer:ePickPlayer, pickGlass:ePickGlass, pickTargets, konter:eKonter, leave:eLeave, rejoin:eRejoin, add:eAdd, end:eEnd, rematch:eRematch },
-  render(){ render(); pumpFx(); }, undoStack:() => undoStack
+  render(){ render(); pumpFx(); }, undoStack:() => undoStack,
+  SND, shareState, drawShare:() => drawShare(), openTour:() => openTour(), sfx:n => sfx(n)
 };
 try { window.claude?.hot?.snapshot?.(() => ({ state })); } catch(e){}
 window.claude?.hot?.ready ? window.claude.hot.ready(boot) : boot(window.claude?.hot?.data ?? {});

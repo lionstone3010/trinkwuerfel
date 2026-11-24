@@ -3,7 +3,7 @@
    ohne Internet aus dem Speicher. Symbole: aus dem Speicher.
    Schriften und ZIP-Bibliothek: aus dem Speicher, im Hintergrund aktualisiert.
    Der Besucherzähler wird nie gespeichert. Ältere Versionen (v1/, v2/, ...) bleiben unberührt. */
-const CACHE = "trinkwuerfel-2.2";
+const CACHE = "trinkwuerfel-2.3";
 const CORE = ["./", "./manifest.webmanifest", "./icons/apple-touch-icon.png", "./icons/icon-192.png", "./icons/icon-512.png", "./icons/favicon-32.png"];
 const SCOPE = new URL("./", self.location).pathname;
 

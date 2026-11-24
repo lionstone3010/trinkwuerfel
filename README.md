@@ -3,7 +3,7 @@
 Das Trinkspiel mit 6 Gläsern und einem Würfel, direkt im Handy-Browser. Kein Download, keine Anmeldung: Link öffnen, eintragen, würfeln.
 
 **Spielen:** https://lionstone3010.github.io/trinkwuerfel/
-**Ältere Versionen:** [2.1](https://lionstone3010.github.io/trinkwuerfel/v2.1/) · [2.0](https://lionstone3010.github.io/trinkwuerfel/v2/) · [1.0](https://lionstone3010.github.io/trinkwuerfel/v1/)
+**Ältere Versionen:** [2.2](https://lionstone3010.github.io/trinkwuerfel/v2.2/) · [2.1](https://lionstone3010.github.io/trinkwuerfel/v2.1/) · [2.0](https://lionstone3010.github.io/trinkwuerfel/v2/) · [1.0](https://lionstone3010.github.io/trinkwuerfel/v1/)
 
 **Als App aufs Handy:** Link im Browser öffnen, dann *Teilen → Zum Home-Bildschirm* (iPhone) oder *⋮ → App installieren* (Android).
 
@@ -12,6 +12,14 @@ Das Trinkspiel mit 6 Gläsern und einem Würfel, direkt im Handy-Browser. Kein D
 - Leeres Glas gewürfelt: auffüllen, dann geht das Handy weiter.
 - Volles Glas gewürfelt: austrinken und sofort nochmal würfeln, bis ein leeres Glas kommt.
 - Wer nicht mehr mag, steigt aus. Wasser zwischendurch hilft. Und niemand muss.
+
+## Neu in Version 2.3
+- Teilen-Karte am Spielende: Endstand oder Rage-Moment als Bild für WhatsApp und Instagram-Story (Selfies nur auf Wunsch)
+- Button „Spiel mit Freunden teilen“ auf dem Startbildschirm und im Menü
+- Sounds: Würfelklackern, Gluckern, Alarm, Fanfaren, mit Stummschalter oben im Spiel
+- Eigene Hausregeln: Auslöser wählen (Zahl, Shot, 3 am Stück, Volles Haus, K.O., alle 10 Würfe) und eigenen Text eingeben
+- Kurze Einführung beim ersten Start, später über „Regeln und Karten“ erneut aufrufbar
+- Eintragen-Bildschirm passt sich auch bei vielen Spielern und kleinen Handys an, nichts wird mehr abgeschnitten
 
 ## Neu in Version 2.2
 - Eigenes App-Symbol (Würfel aus Gläsern) für Home-Bildschirm und Browser-Tab
