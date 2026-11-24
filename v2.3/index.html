@@ -568,7 +568,7 @@ const ICON = {
    Gezählt werden nur Aufrufe und Spielstarts, keine Namen, Fotos oder Spielstände.
    ===================================================================== */
 const COUNTER = "https://trinkwuerfel.goatcounter.com/count";
-const counting = !inSandbox && /github\.io$/.test(location.hostname);
+const counting = false; /* Archiv: zählt nicht mit */
 if (counting){
   try {
     const sc = document.createElement("script");
