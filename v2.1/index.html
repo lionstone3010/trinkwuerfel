@@ -1,0 +1,1885 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#f2f3f5"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><style>:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;padding:0}img{max-width:100%}[hidden]{display:none!important}</style></head><body>
+<title>Trinkwürfel</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Manrope:wght@500;700;800&display=swap">
+<style>
+/* Layout: one column, full-bleed. Während des Spiels färbt sich der ganze Screen in der Farbe der Person, die dran ist. Start und Endstand auf hellem Papier. Bewusst ein eigenes Farbschema, unabhängig vom Systemmodus. */
+:root{
+  --paper:#f2f3f5;
+  --ink:#14151b;
+  --ink-soft:#5f6371;
+  --drink:#ffc84a;
+  --drink-deep:#f2960f;
+  --foam:#fffaf0;
+  --attack:#e23d28;
+  --konter:#0e8a5c;
+  --pc:#2b50e8;
+  --bg:var(--paper);
+  --fg:var(--ink);
+  --soft:var(--ink-soft);
+  --chip:#ffffff;
+  --line:#dcdee4;
+  --btn-bg:var(--ink);
+  --btn-fg:#ffffff;
+  --display:"Bricolage Grotesque","Arial Narrow",system-ui,sans-serif;
+  --body:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:light;
+}
+body.color{
+  --bg:var(--pc);
+  --fg:#ffffff;
+  --soft:rgba(255,255,255,.8);
+  --chip:rgba(255,255,255,.16);
+  --line:rgba(255,255,255,.34);
+  --btn-bg:#ffffff;
+  --btn-fg:var(--pc);
+  color-scheme:dark;
+}
+html,body{height:100%}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.45;transition:background-color .5s ease;-webkit-tap-highlight-color:transparent}
+.app{
+  max-width:520px;margin:0 auto;box-sizing:border-box;min-height:100%;
+  padding-left:max(18px, env(safe-area-inset-left, 0px));
+  padding-right:max(18px, env(safe-area-inset-right, 0px));
+  padding-block:18px 28px;
+  display:flex;flex-direction:column;gap:22px;
+}
+h1,h2,h3{font-family:var(--display);font-weight:800;margin:0;letter-spacing:-.025em;text-wrap:balance;line-height:.95}
+p{margin:0}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none;padding:0}
+:focus-visible{outline:3px solid currentColor;outline-offset:3px}
+.eyebrow{font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--soft)}
+.soft{color:var(--soft)}
+
+/* Buttons */
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:58px;padding:0 22px;border-radius:999px;box-sizing:border-box;
+  background:var(--btn-bg);color:var(--btn-fg);font-weight:800;font-size:17px;transition:transform .1s ease, opacity .2s, background-color .5s, color .5s}
+.btn:active{transform:scale(.97)}
+.btn .sub{font-weight:600;opacity:.7}
+.btn.alt{background:transparent;color:var(--fg);box-shadow:inset 0 0 0 2px var(--line)}
+.btn[disabled]{opacity:.35;pointer-events:none}
+.btn svg{width:20px;height:20px;stroke:currentColor}
+.stack{display:flex;flex-direction:column;gap:10px}
+.ib{width:44px;height:44px;border-radius:50%;background:var(--chip);display:grid;place-items:center;flex:none;transition:background-color .5s}
+.ib svg{width:21px;height:21px;stroke:var(--fg)}
+.ib[disabled]{opacity:.3;pointer-events:none}
+.minis{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;width:100%}
+.mini{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 14px;border-radius:999px;background:var(--chip);color:var(--fg);font-weight:800;font-size:14px;transition:transform .1s}
+.mini:active{transform:scale(.95)}
+.mini svg{width:18px;height:18px;stroke:currentColor}
+.mini.card-btn{background:rgba(255,255,255,.92);color:var(--pc)}
+.mini .dot{width:8px;height:8px;border-radius:50%;background:currentColor}
+
+/* Glasses */
+.table{display:grid;grid-template-columns:repeat(3,1fr);gap:6px 8px}
+.g{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0;border-radius:16px;padding:2px 0;transition:background-color .2s,box-shadow .2s}
+.g svg{width:68%;max-width:84px;height:auto;overflow:visible;display:block}
+.g .shape{fill:rgba(255,255,255,.12);stroke:var(--fg);stroke-width:2.6;stroke-linejoin:round;transition:stroke .5s}
+.g .deco{fill:none;stroke:var(--fg);stroke-width:2.6;stroke-linecap:round;transition:stroke .5s}
+.g .base{fill:var(--fg);transition:fill .5s}
+.g .liq{fill:var(--drink);transform-box:fill-box;transform-origin:50% 100%;transform:scaleY(0);transition:transform .7s cubic-bezier(.25,1.5,.45,1)}
+.g .liq2{fill:var(--drink-deep);opacity:.5;transform-box:fill-box;transform-origin:50% 100%;transform:scaleY(0);transition:transform .75s cubic-bezier(.25,1.5,.45,1) .05s}
+.g .foam{fill:var(--foam);opacity:0;transition:opacity .3s .4s}
+.g .shine{stroke:rgba(255,255,255,.55);stroke-width:2.6;stroke-linecap:round;fill:none}
+.g.full .liq,.g.full .liq2{transform:scaleY(1)}
+.g.full .foam{opacity:1}
+.g .gn{font-family:var(--display);font-weight:800;font-size:22px;line-height:1;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;transition:background-color .2s,color .2s}
+.g .gl{font-size:12px;font-weight:700;color:var(--soft);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.g.hit .gn{background:#fff;color:var(--pc)}
+.g.hit-fill svg{animation:bob .7s ease}
+.g.hit-drink svg{animation:shake .55s ease 2}
+.g.tease .gn{background:rgba(255,255,255,.35)}
+.g.tease svg{animation:shake .5s ease infinite}
+.g.pickable{cursor:pointer;background:rgba(255,255,255,.12);box-shadow:inset 0 0 0 2px rgba(255,255,255,.5)}
+.g.pickable:active{transform:scale(.96)}
+.g.picked{background:rgba(255,255,255,.3);box-shadow:inset 0 0 0 3px #fff}
+.g.dim{opacity:.35}
+@keyframes bob{40%{transform:translateY(-8px) scale(1.06)}}
+@keyframes shake{20%{transform:rotate(-9deg)}40%{transform:rotate(8deg)}60%{transform:rotate(-6deg)}80%{transform:rotate(4deg)}}
+
+/* Intro */
+.hero{display:flex;flex-direction:column;gap:12px;padding-top:18px}
+.hero h1{font-size:clamp(56px,17vw,86px)}
+.hero p{font-size:17px;color:var(--soft);max-width:30ch}
+.lineup{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;padding:8px 0 4px}
+.lineup .g .gn{font-size:16px;width:auto;height:auto}
+.lineup .g svg{width:86%}
+.section{display:flex;flex-direction:column;gap:2px}
+.section>.eyebrow{margin-bottom:8px}
+.setup{display:flex;flex-direction:column;gap:0}
+.setup>.eyebrow{margin-bottom:6px}
+.opt{display:grid;grid-template-columns:1fr auto;gap:4px 14px;align-items:center;padding:14px 0;border-top:1px solid var(--line)}
+.opt .t{font-weight:800}
+.opt .d{grid-column:1/-1;font-size:14px;color:var(--soft);margin-top:-2px}
+.opt .d b{color:var(--fg)}
+.opt .full{grid-column:1/-1}
+.switch{width:52px;height:32px;border-radius:999px;background:#d5d8de;position:relative;transition:background-color .2s;flex:none}
+.switch::after{content:"";position:absolute;top:3px;left:3px;width:26px;height:26px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .2s cubic-bezier(.3,1.4,.5,1)}
+.switch[aria-checked="true"]{background:var(--ink)}
+.switch[aria-checked="true"]::after{transform:translateX(20px)}
+.grow{display:grid;grid-template-columns:28px 1fr;gap:8px 12px;align-items:center;padding:12px 0;border-top:1px solid var(--line)}
+.grow .num{font-family:var(--display);font-weight:800;font-size:22px}
+.seg{display:flex;background:#e4e6eb;border-radius:999px;padding:3px}
+.seg button{flex:1;min-height:36px;border-radius:999px;font-size:14px;font-weight:700;color:var(--ink-soft);transition:background-color .2s,color .2s;padding:0 6px}
+.seg button[aria-pressed="true"]{background:var(--ink);color:#fff}
+.field{width:100%;box-sizing:border-box;min-height:44px;padding:0 14px;border-radius:12px;border:1.5px solid var(--line);background:#fff;color:var(--ink)}
+.field::placeholder{color:#9a9eaa}
+.field:focus{outline:none;border-color:var(--ink)}
+.grow .field{grid-column:2}
+details.more{border-top:1px solid var(--line);padding-top:14px}
+details.more summary{list-style:none;cursor:pointer;font-weight:800;display:flex;justify-content:space-between;align-items:center}
+details.more summary::-webkit-details-marker{display:none}
+details.more summary::after{content:"";width:10px;height:10px;border-right:2.5px solid currentColor;border-bottom:2.5px solid currentColor;transform:rotate(45deg) translateY(-3px);transition:transform .2s}
+details.more[open] summary::after{transform:rotate(-135deg)}
+.rules{margin:12px 0 0;padding-left:18px;display:flex;flex-direction:column;gap:8px;color:var(--soft)}
+.rules b{color:var(--fg)}
+.cardlist{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.cardlist div{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;font-size:14px}
+.cardlist .tag{grid-row:span 2;align-self:start;margin-top:2px}
+.cardlist b{font-weight:800}
+.cardlist span:last-child{color:var(--soft)}
+.tag{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;border-radius:999px;color:#fff}
+.tag.attack{background:var(--attack)}
+.tag.konter{background:var(--konter)}
+.note{font-size:13px;color:var(--soft);text-align:center}
+.startbar{position:sticky;bottom:calc(12px + env(safe-area-inset-bottom, 0px));z-index:3}
+.startbar .btn{box-shadow:0 10px 30px rgba(20,21,27,.25)}
+
+/* Avatars */
+.av{position:relative;flex:none;border-radius:50%;display:grid;place-items:center;font-family:var(--display);font-weight:800;color:#fff;background:var(--c);box-shadow:0 0 0 2.5px rgba(255,255,255,.9);overflow:hidden}
+.av img{width:100%;height:100%;object-fit:cover;display:block}
+.av-s{width:38px;height:38px;font-size:17px}
+.av-m{width:50px;height:50px;font-size:22px}
+.av-l{width:128px;height:128px;font-size:52px}
+.av-xl{width:min(46vw,190px);height:min(46vw,190px);font-size:72px}
+.koed .av{filter:grayscale(1)}
+.stamp{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none}
+.stamp span{font-family:var(--display);font-weight:800;color:#ff3b3b;border:3px solid #ff3b3b;border-radius:8px;padding:0 5px;transform:rotate(-18deg);background:rgba(255,255,255,.85);font-size:12px;line-height:1.3}
+.stamp.big span{font-size:clamp(34px,10vw,54px);border-width:6px;border-radius:14px;padding:0 14px;animation:stampIn .45s cubic-bezier(.2,1.6,.4,1) both}
+@keyframes stampIn{from{transform:rotate(-18deg) scale(2.4);opacity:0}}
+
+/* Join */
+.join-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.join-head h1{font-size:clamp(46px,14vw,64px);margin-top:6px}
+.handoff{font-weight:700;font-size:15px;background:rgba(0,0,0,.16);border-radius:14px;padding:12px 14px}
+.selfie{width:156px;height:156px;border-radius:50%;margin:0 auto;display:grid;place-items:center;overflow:hidden;border:2.5px dashed rgba(255,255,255,.7);color:#fff;font-weight:700;font-size:14px;transition:transform .15s}
+.selfie:active{transform:scale(.96)}
+.selfie img{width:100%;height:100%;object-fit:cover}
+.selfie svg{width:40px;height:40px;stroke:#fff;display:block;margin:0 auto 6px}
+.name-input{min-height:60px;border-radius:999px;border:0;background:#fff;color:var(--ink);font-size:22px;font-weight:800;text-align:center;font-family:var(--body)}
+.name-input:focus{outline:3px solid rgba(255,255,255,.6);outline-offset:3px}
+.seated{display:flex;flex-wrap:wrap;gap:12px 10px}
+.seat{display:flex;flex-direction:column;align-items:center;gap:6px;width:56px}
+.seat span{font-size:12px;font-weight:700;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* Peek (geheime Karte) */
+.peek{align-items:center;text-align:center;justify-content:center}
+.peek h1{font-size:clamp(34px,9vw,52px)}
+.hold{width:min(66vw,250px);aspect-ratio:5/7;border-radius:24px;position:relative;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:none;cursor:pointer}
+.hold .face{position:absolute;inset:0;border-radius:24px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:20px;box-sizing:border-box;backface-visibility:hidden;transition:transform .35s cubic-bezier(.3,1.2,.5,1)}
+.hold .back{background:rgba(255,255,255,.14);box-shadow:inset 0 0 0 2.5px rgba(255,255,255,.6);color:#fff}
+.hold .back .q{font-family:var(--display);font-weight:800;font-size:70px;line-height:1;opacity:.9}
+.hold .back small{font-weight:700;font-size:14px;opacity:.85}
+.hold .front{background:#fff;color:var(--ink);transform:rotateY(180deg)}
+.hold.show .back{transform:rotateY(-180deg)}
+.hold.show .front{transform:rotateY(0)}
+.cardface .cn{font-family:var(--display);font-weight:800;font-size:clamp(28px,8vw,36px);line-height:1;letter-spacing:-.02em}
+.cardface .ct{font-size:15px;font-weight:700;color:var(--ink-soft);line-height:1.35}
+.cardface .none{font-family:var(--display);font-weight:800;font-size:26px;line-height:1.05}
+
+/* Game */
+.top{display:flex;align-items:center;gap:12px}
+.top .who{flex:1;min-width:0}
+.top .name{font-family:var(--display);font-weight:800;font-size:clamp(28px,8vw,36px);line-height:1;letter-spacing:-.02em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.top .icons{display:flex;gap:6px}
+.redirect{display:flex;align-items:center;gap:8px;align-self:center;background:rgba(0,0,0,.2);border-radius:999px;padding:4px 14px 4px 4px;font-weight:800;font-size:13px;max-width:100%}
+.redirect .av{box-shadow:none}
+.stage{display:flex;flex-direction:column;align-items:center;gap:16px;padding-top:4px}
+.die{width:104px;height:104px;border-radius:28px;background:#fff;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);padding:17px;box-sizing:border-box;gap:5px;box-shadow:0 10px 0 rgba(0,0,0,.16),0 18px 30px rgba(0,0,0,.18);flex:none}
+.die .pip{border-radius:50%;margin:2px}
+.die .pip.on{background:var(--pc);transition:background-color .5s}
+.die.idle{cursor:pointer;animation:breathe 2.4s ease-in-out infinite}
+.die.rolling{animation:tumble .7s cubic-bezier(.3,.7,.35,1)}
+.die.teeter{animation:teeter .42s ease-in-out infinite}
+.die.tip{animation:tip .3s ease-in both}
+@keyframes breathe{50%{transform:translateY(-5px) rotate(-3deg)}}
+@keyframes tumble{0%{transform:none}25%{transform:translateY(-44px) rotate(-150deg) scale(.86)}55%{transform:translateY(-8px) rotate(-290deg) scale(1.04)}75%{transform:translateY(-16px) rotate(-345deg)}100%{transform:rotate(-360deg)}}
+@keyframes teeter{0%,100%{transform:rotate(-7deg) translateY(-2px)}50%{transform:rotate(9deg) translateY(-6px)}}
+@keyframes tip{0%{transform:rotate(9deg)}100%{transform:rotate(95deg) translateY(-6px) scale(.9)}}
+.verdict{text-align:center;display:flex;flex-direction:column;align-items:center;gap:6px;min-height:84px;justify-content:center;max-width:100%}
+.verdict .word{font-family:var(--display);font-weight:800;font-size:clamp(46px,14vw,66px);line-height:.9;letter-spacing:-.03em;animation:pop .45s cubic-bezier(.2,1.6,.4,1)}
+.verdict .line{font-weight:700;font-size:16px;color:var(--soft)}
+.verdict .whobar{display:flex;align-items:center;gap:8px;font-weight:800;font-size:18px}
+.streak{background:#fff;color:var(--pc);font-weight:800;font-size:13px;border-radius:999px;padding:4px 12px;animation:pop .45s cubic-bezier(.2,1.6,.4,1) .1s both}
+@keyframes pop{from{transform:scale(.6);opacity:0}}
+.actions{width:100%;display:flex;flex-direction:column;gap:10px}
+.picks{display:grid;grid-template-columns:repeat(auto-fill,minmax(68px,1fr));gap:10px 6px;width:100%}
+.pk{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0}
+.pk span{font-size:13px;font-weight:800;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pk:active .av{transform:scale(.94)}
+.pk.off{opacity:.35;pointer-events:none}
+.allrow{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;padding-bottom:8px}
+.allrow .x{position:relative}
+.allrow .x.saved .av{opacity:.35}
+.allrow .x.saved::after{content:"gerettet";position:absolute;left:50%;bottom:-6px;transform:translateX(-50%);font-size:10px;font-weight:800;background:#fff;color:var(--konter);border-radius:999px;padding:0 5px}
+.strip{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;padding:6px 2px 2px;margin:0 -2px}
+.strip::-webkit-scrollbar{display:none}
+.pl{flex:none;width:62px;display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center}
+.pl .av{box-shadow:0 0 0 2px rgba(255,255,255,.35)}
+.pl.cur .av{box-shadow:0 0 0 3px #fff}
+.pl .wrap{position:relative}
+.pl .badge{position:absolute;right:-6px;bottom:-4px;min-width:22px;height:22px;padding:0 5px;box-sizing:border-box;border-radius:999px;background:#fff;color:var(--ink);font-weight:800;font-size:12px;display:grid;place-items:center;font-variant-numeric:tabular-nums}
+.pl .cardic{position:absolute;left:-5px;top:-4px;width:14px;height:19px;border-radius:3px;background:#fff;box-shadow:0 0 0 1.5px var(--pc), 2px 2px 0 rgba(0,0,0,.2)}
+.pl .cardic::after{content:"?";position:absolute;inset:0;display:grid;place-items:center;font-size:11px;font-weight:800;color:var(--pc)}
+.pl .nm{font-size:12px;font-weight:700;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pl .hearts{font-size:10px;letter-spacing:1px;line-height:1;color:#fff}
+.pl .hearts i{font-style:normal;opacity:.3}
+.pl.out{opacity:.45}
+.pl.out .av{filter:grayscale(1)}
+.pl.koed{opacity:.6}
+.flash{position:fixed;inset:0;background:#000;pointer-events:none;opacity:0;z-index:5}
+.flash.on{animation:flash .6s ease}
+@keyframes flash{25%{opacity:.22}}
+
+/* FX overlays */
+.fx{position:fixed;inset:0;z-index:30;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;text-align:center;color:#fff;background:rgba(10,11,16,.72);padding:24px max(18px, env(safe-area-inset-right, 0px)) 24px max(18px, env(safe-area-inset-left, 0px));box-sizing:border-box;animation:fadeIn .2s ease both;cursor:pointer}
+@keyframes fadeIn{from{opacity:0}}
+.fx .big{font-family:var(--display);font-weight:800;font-size:clamp(54px,17vw,96px);line-height:.9;letter-spacing:-.03em;animation:pop .5s cubic-bezier(.2,1.6,.4,1) both}
+.fx .sub{font-weight:800;font-size:18px;opacity:.9}
+.fx .skip{position:absolute;bottom:calc(18px + env(safe-area-inset-bottom, 0px));font-size:12px;opacity:.6;font-weight:700}
+.fx .show{width:min(70vw,280px);aspect-ratio:1;border-radius:28px;overflow:hidden;background:rgba(255,255,255,.1);display:grid;place-items:center;box-shadow:0 20px 50px rgba(0,0,0,.4)}
+.fx .show img{width:100%;height:100%;object-fit:cover;display:block}
+.fx .show .ini{font-family:var(--display);font-weight:800;font-size:110px}
+.fx .cap{font-weight:800;font-size:20px}
+.fx .bigcard{width:min(62vw,240px);aspect-ratio:5/7;border-radius:24px;background:#fff;color:var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:20px;box-sizing:border-box;animation:flipIn .6s cubic-bezier(.2,1.2,.4,1) both;box-shadow:0 20px 60px rgba(0,0,0,.45)}
+@keyframes flipIn{from{transform:perspective(800px) rotateY(180deg) scale(.6);opacity:0}}
+.fx .who{display:flex;align-items:center;gap:10px;font-weight:800;font-size:18px}
+.fx .spinname{font-family:var(--display);font-weight:800;font-size:clamp(40px,12vw,64px);line-height:1}
+.fx.win{background:var(--ink)}
+.fx .crown{font-family:var(--display);font-weight:800;letter-spacing:.2em;font-size:14px;text-transform:uppercase;color:var(--drink)}
+.toast{position:fixed;left:50%;top:calc(16px + env(safe-area-inset-top, 0px));transform:translateX(-50%);z-index:40;background:var(--ink);color:#fff;font-weight:800;font-size:15px;border-radius:999px;padding:12px 20px;box-shadow:0 10px 30px rgba(0,0,0,.3);animation:toastIn .25s cubic-bezier(.2,1.4,.4,1) both;max-width:calc(100% - 36px);box-sizing:border-box;text-align:center}
+@keyframes toastIn{from{transform:translate(-50%,-30px);opacity:0}}
+
+/* Kamera */
+.cam{position:fixed;inset:0;z-index:35;background:#000;display:flex;flex-direction:column}
+.cam video{flex:1;min-height:0;width:100%;object-fit:cover;background:#000}
+.cam .bar{display:flex;align-items:center;justify-content:space-around;padding:18px max(18px, env(safe-area-inset-right, 0px)) calc(22px + env(safe-area-inset-bottom, 0px)) max(18px, env(safe-area-inset-left, 0px));gap:12px;color:#fff}
+.cam .shutter{width:76px;height:76px;border-radius:50%;background:#fff;box-shadow:0 0 0 5px rgba(255,255,255,.35)}
+.cam .shutter:active{transform:scale(.93)}
+.cam .cb{min-width:64px;font-weight:800;font-size:14px;color:#fff}
+.cam .hint{position:absolute;top:calc(18px + env(safe-area-inset-top, 0px));left:0;right:0;text-align:center;color:#fff;font-weight:800;text-shadow:0 1px 6px rgba(0,0,0,.6)}
+.cam .msg{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;color:#fff;text-align:center;padding:24px}
+.cam.snap::after{content:"";position:absolute;inset:0;background:#fff;animation:camflash .5s ease both;pointer-events:none}
+@keyframes camflash{from{opacity:.9}to{opacity:0}}
+
+/* Sheet */
+.overlay{position:fixed;inset:0;z-index:20;background:rgba(10,11,16,.5);display:flex;align-items:flex-end;justify-content:center}
+.sheet{--fg:var(--ink);--soft:var(--ink-soft);--line:#e3e5ea;--chip:#eef0f3;--btn-bg:var(--ink);--btn-fg:#fff;
+  color:var(--ink);background:#fff;width:100%;max-width:520px;max-height:86%;overflow-y:auto;border-radius:28px 28px 0 0;box-sizing:border-box;
+  padding:22px max(18px, env(safe-area-inset-right, 0px)) calc(24px + env(safe-area-inset-bottom, 0px)) max(18px, env(safe-area-inset-left, 0px));
+  display:flex;flex-direction:column;gap:16px;animation:up .25s cubic-bezier(.2,1,.4,1)}
+@keyframes up{from{transform:translateY(60px);opacity:0}}
+.sheet-head{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.sheet-head h3{font-size:28px}
+.sheet .picks .av{box-shadow:none}
+.sheet .msg{font-family:var(--display);font-weight:800;font-size:26px;text-align:center;padding:18px 0;line-height:1.1}
+.rows{display:flex;flex-direction:column}
+.r{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
+.r:last-child{border-bottom:0}
+.r .rk{font-family:var(--display);font-weight:800;width:22px;color:var(--soft)}
+.r .nm{flex:1;min-width:0;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.r .nm small{display:block;color:var(--soft);font-weight:600;font-size:12px}
+.r .val{font-family:var(--display);font-weight:800;font-size:26px;font-variant-numeric:tabular-nums}
+.hist .r{font-size:14px;font-weight:600}
+.hist .dot{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:14px;flex:none}
+.hist .dot.d{background:var(--drink);color:var(--ink)}
+.hist .dot.f{background:#eef0f3}
+.hist .dot.c{background:var(--ink);color:#fff}
+.stats3{display:grid;grid-template-columns:repeat(4,1fr);text-align:center}
+.stats3 b{display:block;font-family:var(--display);font-weight:800;font-size:32px;line-height:1}
+.stats3 span{font-size:12px;font-weight:700;color:var(--soft)}
+.sheet .av{box-shadow:none}
+.sheet .field{background:#f5f6f8}
+
+/* End */
+.awards{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.award{background:#fff;border-radius:22px;padding:16px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.award .who{display:flex;align-items:center;gap:8px;font-weight:800;min-width:0}
+.award .who span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.award .val{font-family:var(--display);font-weight:800;font-size:30px;line-height:1}
+.award .av{box-shadow:none}
+.award:last-child:nth-child(odd){grid-column:1/-1}
+.panel{background:#fff;border-radius:22px;padding:6px 16px}
+.panel .av{box-shadow:none}
+.winner{background:var(--ink);color:#fff;border-radius:26px;padding:22px 18px;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center}
+.winner .crown{font-family:var(--display);font-weight:800;letter-spacing:.2em;font-size:13px;text-transform:uppercase;color:var(--drink)}
+.winner h2{font-size:clamp(34px,10vw,50px)}
+.winner .avs{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.rage{background:var(--attack);color:#fff;border-radius:22px;padding:18px;display:flex;gap:14px;align-items:center}
+.rage .av{box-shadow:0 0 0 3px #fff}
+.rage .txt{display:flex;flex-direction:column;gap:4px;min-width:0}
+.rage .lbl{font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;opacity:.85}
+.rage .q{font-family:var(--display);font-weight:800;font-size:20px;line-height:1.15}
+.near{display:flex;flex-direction:column;gap:8px}
+.near p{background:#fff;border-radius:16px;padding:12px 14px;font-weight:700;font-size:15px}
+.gallery{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.gallery figure{margin:0;background:#fff;border-radius:20px;overflow:hidden}
+.gallery img{width:100%;max-width:100%;aspect-ratio:3/4;object-fit:cover;display:block}
+.gallery figcaption{padding:10px 12px;font-weight:800;font-size:14px;display:flex;align-items:center;gap:8px}
+.gallery figcaption .cap{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gallery figcaption small{display:block;font-weight:600;color:var(--soft)}
+.gallery .save{width:36px;height:36px;border-radius:50%;background:#eef0f3;display:grid;place-items:center;flex:none}
+.gallery .save svg{width:18px;height:18px;stroke:var(--ink)}
+.boomtag{position:absolute;top:8px;left:8px;background:rgba(0,0,0,.55);color:#fff;font-size:10px;font-weight:800;letter-spacing:.08em;border-radius:999px;padding:2px 7px}
+.gallery figure{position:relative}
+.empty{color:var(--soft);font-size:14px}
+.dl-msg{font-size:14px;font-weight:700;text-align:center;color:var(--soft)}
+.credit{margin:auto auto 0;padding-top:28px;display:flex;align-items:center;justify-content:center;gap:7px;color:var(--soft)}
+.credit svg{width:16px;height:20px;color:var(--fg);margin-right:1px;transform:translateY(-1px)}
+.credit span{font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase}
+.privacy{font-size:11px;line-height:1.4;color:var(--soft);text-align:center;max-width:36ch;margin:-12px auto 0;opacity:.85}
+.credit b{font-family:var(--display);font-weight:800;font-size:17px;letter-spacing:-.01em;color:var(--fg);box-shadow:inset 0 -5px 0 var(--drink);line-height:1.1}
+
+/* Ein-Screen-Layouts */
+html:has(body.lock), body.lock{overflow:hidden;overscroll-behavior:none}
+.app.game,.app.join,.app.peek{
+  height:calc(100vh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+  height:calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+  min-height:0;overflow:hidden
+}
+.app.game{padding-block:12px 10px;gap:clamp(6px,1.4dvh,16px)}
+.app.game .top,.app.game .table,.app.game .strip,.app.game .redirect{flex:none}
+.app.game .g svg{width:auto;height:clamp(36px,9.5dvh,86px);max-width:84px}
+.app.game .g .gn{width:clamp(24px,3.8dvh,34px);height:clamp(24px,3.8dvh,34px);font-size:clamp(16px,2.5dvh,22px)}
+.app.game .g .gl{font-size:11px}
+.app.game .stage{flex:1;min-height:0;justify-content:center;gap:clamp(6px,1.4dvh,14px);padding-top:0}
+.app.game .stage>*{flex-shrink:0}
+.app.game .die{width:clamp(58px,10.5dvh,104px);height:clamp(58px,10.5dvh,104px);padding:clamp(9px,1.7dvh,17px);border-radius:clamp(16px,3dvh,28px)}
+.app.game .verdict{min-height:0;gap:4px}
+.app.game .verdict .word{font-size:clamp(32px,6.6dvh,64px)}
+.app.game .btn{min-height:clamp(46px,6.4dvh,58px)}
+.app.game .mini{min-height:clamp(34px,5dvh,40px)}
+.app.game .picks .av{width:clamp(38px,6dvh,50px);height:clamp(38px,6dvh,50px)}
+.app.join{padding-block:14px 12px;gap:clamp(10px,2dvh,22px)}
+.app.join>*{flex:none}
+.app.join .join-head h1{font-size:clamp(36px,7.5dvh,64px)}
+.app.join .handoff{font-size:14px;padding:10px 12px}
+.app.join #join-form{gap:clamp(10px,1.8dvh,16px)!important}
+.app.join .selfie{width:clamp(84px,17dvh,156px);height:clamp(84px,17dvh,156px)}
+.app.join .selfie svg{width:clamp(26px,4.5dvh,40px);height:clamp(26px,4.5dvh,40px)}
+.app.join .name-input{min-height:clamp(48px,7dvh,60px);font-size:clamp(18px,2.8dvh,22px)}
+.app.join .btn{min-height:clamp(48px,6.6dvh,58px)}
+.app.join .seated{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding:3px 3px 2px;margin:-3px}
+.app.join .seated::-webkit-scrollbar{display:none}
+.app.join .seat{flex:none}
+.app.join .seat .av{width:clamp(38px,6dvh,50px);height:clamp(38px,6dvh,50px)}
+.app.join .bottom{margin-top:auto}
+@media (max-height:640px){ .app.join .bottom .note{display:none} }
+.app.peek{padding-block:18px 14px;gap:clamp(12px,2.4dvh,24px)}
+.app.peek .hold{width:min(62vw,250px,36dvh)}
+.app.peek .stack{width:100%}
+
+/* Wenn es eng wird: erst verkleinern, dann den Würfel ausblenden, damit sich nichts überlappt */
+.app.game.tight{gap:6px}
+.app.game.tight .g svg{height:clamp(30px,7.5dvh,64px)}
+.app.game.tight .g .gl{display:none}
+.app.game.tight .stage{gap:6px}
+.app.game.tight .die{width:clamp(46px,8dvh,70px);height:clamp(46px,8dvh,70px);padding:9px;border-radius:16px;box-shadow:0 6px 0 rgba(0,0,0,.16)}
+.app.game.tight .verdict .word{font-size:clamp(28px,5.2dvh,46px)}
+.app.game.tight .verdict .line{font-size:14px}
+.app.game.tight .btn{min-height:46px;font-size:16px}
+.app.game.tight .mini{min-height:34px}
+.app.game.tight .picks .av{width:40px;height:40px;font-size:18px}
+.app.game.tighter .die{display:none}
+.app.game.tighter .top .av-m{width:40px;height:40px}
+.app.game.tighter .top .name{font-size:24px}
+.app.game.tighter .ib{width:38px;height:38px}
+.app.game.tighter .g .gn{width:22px;height:22px;font-size:15px}
+.app.game.tighter .g svg{height:clamp(26px,6dvh,52px)}
+.app.game.tighter .pl .nm{display:none}
+/* Sehr kleine Bildschirme: noch kompakter, notfalls scrollt nur die Mitte */
+.app.game.tightest{gap:4px;padding-block:8px 6px}
+.app.game.tightest .top .eyebrow{display:none}
+.app.game.tightest .table{gap:2px 8px}
+.app.game.tightest .g{flex-direction:row;justify-content:center;gap:6px}
+.app.game.tightest .g svg{height:26px}
+.app.game.tightest .g .gn{width:20px;height:20px;font-size:14px}
+.app.game.tightest .verdict .word{font-size:28px}
+.app.game.tightest .verdict .line{font-size:13px}
+.app.game.tightest .redirect{font-size:11px;padding:2px 10px 2px 2px}
+.app.game.tightest .redirect .av{width:24px;height:24px;font-size:12px}
+.app.game.tightest .pl .hearts{display:none}
+.app.game.tightest .picks{gap:6px 4px}
+.app.game.tightest .picks .av{width:34px;height:34px;font-size:15px}
+.app.game.tightest .allrow .av{width:30px;height:30px;font-size:13px}
+.app.game.tightest .verdict .whobar .av{width:28px;height:28px}
+.app.game.tightest .ko-av .av{width:72px;height:72px;font-size:30px}
+.app.game.tightest .ko-av .stamp.big span{font-size:22px;border-width:3px;border-radius:8px;padding:0 6px}
+.app.game.tightest .stage{overflow-y:auto;justify-content:flex-start}
+
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<div class="flash" id="flash"></div>
+<div class="app" id="app"></div>
+<div id="sheet-root"></div>
+<div id="fx-root"></div>
+<div id="toast-root"></div>
+
+<script>
+(() => {
+"use strict";
+
+/* =====================================================================
+   Konstanten & Helfer
+   ===================================================================== */
+const TYPES = { glas:"Glas", shot:"Shot", bier:"Bier" };
+const FACES = {1:[4],2:[0,8],3:[0,4,8],4:[0,2,6,8],5:[0,2,4,6,8],6:[0,2,3,5,6,8]};
+const PALETTE = ["#2b50e8","#e23d28","#0e8a5c","#7a35e8","#d0287a","#087f99","#c25a00","#3a3f9e"];
+const SHAPES = {
+  glas:{ body:"M7 6 H57 L51 76 H13 Z", liq:[0,22,64,60], foam:null, extra:"", shine:"M15 16 L18 64" },
+  shot:{ body:"M17 34 H47 L44 72 H20 Z", liq:[0,42,64,34], foam:null, extra:'<rect class="base" x="18" y="71" width="28" height="6" rx="2"/>', shine:"M23 40 L24.5 62" },
+  bier:{ body:"M11 10 H45 V72 Q45 77 40 77 H16 Q11 77 11 72 Z", liq:[0,22,64,60], foam:[0,16,64,9], extra:'<path class="deco" d="M45 24 H52 Q58 24 58 30 V50 Q58 56 52 56 H45"/>', shine:"M18 20 V64" }
+};
+const CARDS = {
+  sabotage:    { name:"Sabotage",    kind:"attack", text:"Ein leeres Glas deiner Wahl wird sofort voll." },
+  tausch:      { name:"Tausch",      kind:"attack", text:"Zwei Gläser tauschen komplett den Platz." },
+  umleitung:   { name:"Umleitung",   kind:"attack", text:"Du bestimmst, wer das nächste volle Glas trinkt." },
+  barkeeper:   { name:"Barkeeper",   kind:"attack", text:"Du bestimmst jemanden, der sofort einen Kurzen trinkt." },
+  glueckspilz: { name:"Glückspilz",  kind:"konter", text:"Wenn du trinken musst: Es fällt aus." },
+  spiegel:     { name:"Spiegel",     kind:"konter", text:"Trifft dich jemand gezielt, geht es an den Absender zurück." },
+  schutzengel: { name:"Schutzengel", kind:"konter", text:"Muss jemand anderes trinken, rettest du ihn." }
+};
+const ADDONS = [
+  ["full",     "Volles Haus", "Alle 6 Gläser voll: alle trinken einen Kurzen."],
+  ["doppel",   "Doppel",      "Gleiche Zahl wie der Wurf davor: Kurzer für den Würfler."],
+  ["drilling", "Drilling",    "Dreimal hintereinander dieselbe Zahl: Kurzer für den Würfler."],
+  ["rache",    "Rache",       "Wer 3 Gläser am Stück trinkt, bestimmt, wer das nächste volle Glas übernimmt."],
+  ["joker",    "Joker",       "Jeder darf einmal pro Spiel ein volles Glas weitergeben."],
+  ["duell",    "Shot-Duell",  "Wer den Shot trinkt, bestimmt jemanden, der einen Kurzen mittrinkt."]
+];
+const VIA = { doppel:"Doppel", drilling:"Drilling", duell:"Shot-Duell", barkeeper:"Barkeeper", joker:"Joker", rache:"Rache", umleitung:"Umleitung", spiegel:"Spiegel", full:"Volles Haus" };
+const ORDERS = { circle:["Im Kreis","Reihum, so wie ihr sitzt."], random:["Zufall","Jede Runde neu gemischt. Jeder kommt einmal pro Runde dran."], chaos:["Zufall · Chaos","Purer Zufall. Auch zweimal hintereinander möglich."] };
+const DEF_SETTINGS = () => ({ order:"circle", ko:false, hearts:3, cards:true, addons:{ full:true, doppel:false, drilling:true, rache:false, joker:true, duell:false } });
+
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
+const uid = () => Math.random().toString(36).slice(2, 10);
+const LS = {
+  get(k){ try { return localStorage.getItem(k); } catch(e){ return null; } },
+  set(k,v){ try { localStorage.setItem(k,v); return true; } catch(e){ return false; } },
+  del(k){ try { localStorage.removeItem(k); } catch(e){} }
+};
+/* Fairer Würfel: echte Zufallszahl, keine Gewichtung */
+function rndInt(n){
+  if (n <= 1) return 0;
+  try {
+    const lim = Math.floor(4294967296 / n) * n; const a = new Uint32Array(1);
+    do { crypto.getRandomValues(a); } while (a[0] >= lim);
+    return a[0] % n;
+  } catch(e){ return Math.floor(Math.random() * n); }
+}
+const rnd6 = () => rndInt(6) + 1;
+function shuffle(a){ for (let i = a.length - 1; i > 0; i--){ const j = rndInt(i + 1); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function buzz(p){ try { navigator.vibrate && navigator.vibrate(p); } catch(e){} }
+const reduced = (() => { try { return matchMedia("(prefers-reduced-motion: reduce)").matches; } catch(e){ return false; } })();
+const inSandbox = (() => { try { return window.self !== window.top || !!window.claude; } catch(e){ return true; } })();
+const svgI = (d, extra) => `<svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" ${extra||""}>${d}</svg>`;
+const ICON = {
+  board: svgI('<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/>'),
+  undo:  svgI('<path d="M9 14 4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-3"/>'),
+  menu:  svgI('<path d="M4 7h16M4 12h16M4 17h10"/>'),
+  close: svgI('<path d="M6 6l12 12M18 6 6 18"/>'),
+  cam:   svgI('<path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>'),
+  down:  svgI('<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>'),
+  card:  svgI('<rect x="6" y="3" width="12" height="18" rx="2"/><path d="M10 9h4M10 13h4"/>'),
+  shield:svgI('<path d="M12 3l7 3v6c0 4-3 7-7 9-4-2-7-5-7-9V6z"/>'),
+  swap:  svgI('<path d="M7 7h12l-3-3M17 17H5l3 3"/>')
+};
+
+/* =====================================================================
+   Besucherzähler (GoatCounter): nur auf der eigenen Webseite, ohne Cookies.
+   Gezählt werden nur Aufrufe und Spielstarts, keine Namen, Fotos oder Spielstände.
+   ===================================================================== */
+const COUNTER = "https://trinkwuerfel.goatcounter.com/count";
+const counting = !inSandbox && /github\.io$/.test(location.hostname);
+if (counting){
+  try {
+    const sc = document.createElement("script");
+    sc.async = true; sc.src = "https://gc.zgo.at/count.js"; sc.dataset.goatcounter = COUNTER;
+    document.head.appendChild(sc);
+  } catch(e){}
+}
+function countEvent(path, title){
+  if (!counting) return;
+  try { if (window.goatcounter && window.goatcounter.count) window.goatcounter.count({ path, title, event:true }); } catch(e){}
+}
+
+/* =====================================================================
+   Zustand
+   ===================================================================== */
+const defaultGlasses = () => [0,1,2,3,4,5].map(i => ({ type: i === 5 ? "shot" : "glas", content:"" }));
+function loadPrefs(){
+  try {
+    const raw = JSON.parse(LS.get("tw_prefs") || "null");
+    if (raw && raw.settings){
+      const d = DEF_SETTINGS();
+      const s = Object.assign(d, raw.settings); s.addons = Object.assign(DEF_SETTINGS().addons, raw.settings.addons || {});
+      if (!ORDERS[s.order]) s.order = "circle";
+      if (![3,4,5].includes(s.hearts)) s.hearts = 3;
+      return { settings:s, config: Array.isArray(raw.config) && raw.config.length === 6 ? raw.config : defaultGlasses() };
+    }
+  } catch(e){}
+  return { settings:DEF_SETTINGS(), config:defaultGlasses() };
+}
+function fresh(){
+  const pr = loadPrefs();
+  return { v:3, phase:"intro", joining:false, settings:pr.settings, config:pr.config,
+    players:[], glasses:JSON.parse(JSON.stringify(pr.config)), full:[false,false,false,false,false,false],
+    turn:0, steps:[], after:null, redirect:null, rolls:[], rollId:0, eventId:0, lastRoll:5, lastFill:null,
+    history:[], proofs:[], handedFrom:null, bag:[], deck:[], peekQueue:[], peekReturn:"game",
+    rage:null, winners:null, spin:null, recapPending:false };
+}
+let state = fresh();
+let photos = {};
+let undoStack = [];
+let draft = { name:"", photo:null };
+let rolling = false;
+const fxQ = [];
+let storageWarned = false;
+
+function save(){ LS.set("tw_state", JSON.stringify(state)); }
+function savePrefs(){ LS.set("tw_prefs", JSON.stringify({ settings:state.settings, config:state.config })); }
+function savePhoto(id, data){
+  photos[id] = data;
+  if (!LS.set("tw_ph_" + id, data) && !storageWarned){ storageWarned = true; toast("Handyspeicher voll: neue Fotos bleiben nur bis zum Neuladen."); }
+}
+function dropPhoto(id){ delete photos[id]; LS.del("tw_ph_" + id); }
+function photoIds(){
+  const ids = state.players.map(p => p.photo).filter(Boolean);
+  state.proofs.forEach(x => { ids.push(x.photo); (x.frames || []).forEach(f => ids.push(f)); });
+  return ids;
+}
+function loadPhotos(){ photoIds().forEach(id => { if (!photos[id]){ const d = LS.get("tw_ph_" + id); if (d) photos[id] = d; } }); }
+function pushUndo(){ undoStack.push(JSON.stringify(state)); if (undoStack.length > 50) undoStack.shift(); }
+const emit = fx => fxQ.push(fx);
+
+const P = id => state.players.find(p => p.id === id);
+const cur = () => state.players[state.turn];
+const active = () => state.players.filter(p => p.active);
+const tot = p => p.drinks + p.extras;
+const colorOf = p => PALETTE[(p ? p.color : 0) % PALETTE.length];
+const others = id => active().filter(p => p.id !== id);
+function nextIndex(from){
+  const n = state.players.length;
+  for (let k = 1; k <= n; k++){ const i = (from + k) % n; if (state.players[i].active) return i; }
+  return -1;
+}
+const nobodyAfter = i => !state.players.slice(i + 1).some(p => p.active);
+const glassLabel = i => { const g = state.glasses[i]; return TYPES[g.type] + (g.content ? " · " + g.content : ""); };
+function log(e){ state.history.push(Object.assign({ t:Date.now() }, e)); if (state.history.length > 400) state.history.shift(); }
+function rage(score, pid, text){ if (!state.rage || score >= state.rage.score) state.rage = { score, pid, text, t:Date.now() }; }
+
+/* =====================================================================
+   SPIEL-ENGINE (ohne DOM)
+   ===================================================================== */
+function dealCard(){
+  if (!state.settings.cards) return null;
+  if (rndInt(3) === 0) return null;          // etwa ein Drittel ohne Karte
+  if (!state.deck.length) state.deck = shuffle(Object.keys(CARDS));
+  return state.deck.pop();
+}
+function makePlayer(name, photoId){
+  const used = new Set(state.players.map(p => p.color));
+  let color = state.players.length; for (let c = 0; c < PALETTE.length; c++) if (!used.has(c)){ color = c; break; }
+  return { id:uid(), name:String(name).trim().slice(0,18), photo:photoId || null, color, active:true, ko:false, koAt:0,
+    hearts:state.settings.hearts, drinks:0, shots:0, extras:0, streak:0, best:0,
+    card:dealCard(), cardUsed:false, jokerUsed:false, konters:0, drillings:0, nearLast:0, nearRefill:0 };
+}
+
+function eStartJoin(){
+  const keepPrefs = { settings:state.settings, config:state.config };
+  state = fresh(); state.settings = keepPrefs.settings; state.config = keepPrefs.config;
+  state.glasses = JSON.parse(JSON.stringify(state.config));
+  state.phase = "join"; state.joining = true; undoStack = [];
+}
+function eJoin(name, photoId){
+  if (!String(name || "").trim()) return null;
+  pushUndo();
+  const p = makePlayer(name, photoId);
+  state.players.push(p); state.turn = state.players.length - 1;
+  state.handedFrom = null; state.steps = []; state.after = null;
+  if (state.settings.cards){ state.peekQueue = [p.id]; state.peekReturn = "game"; state.phase = "peek"; }
+  else state.phase = "game";
+  return p;
+}
+function ePeekDone(){
+  state.peekQueue.shift();
+  if (!state.peekQueue.length) state.phase = state.peekReturn || "game";
+}
+function eAllIn(){
+  if (state.players.length < 2 || state.phase !== "join") return false;
+  pushUndo();
+  state.joining = false; state.phase = "game"; state.handedFrom = null; state.steps = []; state.after = null; state.bag = [];
+  if (state.settings.order === "circle"){ const fi = state.players.findIndex(p => p.active); state.turn = fi < 0 ? 0 : fi; }
+  else { const ni = pickRandom(null); if (ni >= 0){ state.turn = ni; state.spin = { id:state.players[ni].id, slow:false }; } }
+  finish();
+  return true;
+}
+function pickRandom(prevId){
+  const alive = active(); if (!alive.length) return -1;
+  let id;
+  if (state.settings.order === "chaos") id = alive[rndInt(alive.length)].id;
+  else {
+    state.bag = state.bag.filter(x => { const q = P(x); return q && q.active; });
+    if (!state.bag.length) state.bag = alive.map(q => q.id);
+    let cand = state.bag.filter(x => x !== prevId); if (!cand.length) cand = state.bag.slice();
+    id = cand[rndInt(cand.length)];
+    state.bag.splice(state.bag.indexOf(id), 1);
+  }
+  return state.players.findIndex(q => q.id === id);
+}
+function nextTurn(){
+  const p = cur(); state.handedFrom = p ? p.id : null;
+  if (state.joining && nobodyAfter(state.turn)){ state.phase = "join"; return; }
+  const ord = state.joining ? "circle" : state.settings.order;
+  const ni = ord === "circle" ? nextIndex(state.turn) : pickRandom(p ? p.id : null);
+  if (ni >= 0){
+    state.turn = ni;
+    if (ord !== "circle") state.spin = { id:state.players[ni].id, slow: state.full.filter(Boolean).length >= 5 };
+  }
+}
+function decideWinner(){
+  const alive = active(); let w;
+  if (alive.length === 1) w = [alive[0].id];
+  else {
+    const last = Math.max(0, ...state.players.map(p => p.koAt || 0));
+    const c = state.players.filter(p => (p.koAt || 0) === last);
+    const min = Math.min(...c.map(tot));
+    w = c.filter(p => tot(p) === min).map(p => p.id);
+  }
+  state.winners = w; eEnd();
+}
+function prune(){
+  // Auswahl ohne mögliches Ziel (z. B. alle anderen ausgestiegen) überspringen
+  while (state.steps[0] && state.steps[0].t === "pick" && state.steps[0].purpose !== "sabotage" && state.steps[0].purpose !== "tausch" && !pickTargets(state.steps[0]).length){
+    const s = state.steps.shift();
+    if (s.purpose === "joker"){ const by = P(s.by); if (by) by.jokerUsed = false; }
+  }
+  if (state.steps[0] && state.steps[0].t === "pick" && state.steps[0].purpose === "sabotage" && !state.full.some(f => !f)) state.steps.shift();
+}
+function finish(){
+  prune();
+  if (state.steps.length || state.phase !== "game") return;
+  if (state.settings.ko && !state.joining && state.players.length >= 2 && active().length <= 1){ decideWinner(); return; }
+  if (!active().length){ if (!state.joining) eEnd(); else state.phase = "join"; return; }
+  const p = cur();
+  if (state.after === "again" && p && p.active){ state.after = null; return; }
+  if (state.after === "pass" || !p || !p.active){ state.after = null; if (p) p.streak = 0; nextTurn(); }
+}
+function knockOut(p, cause){
+  p.ko = true; p.active = false; p.koAt = state.eventId; p.streak = 0; p.hearts = 0;
+  log({ kind:"ko", pid:p.id, via:cause });
+  if (cause === "doppel" || cause === "drilling") rage(6, p.id, `${p.name}. Raus durch ${cause === "doppel" ? "ein Doppel" : "einen Drilling"}. Mit dem letzten Herz.`);
+  if (state.redirect && (state.redirect.target === p.id)) state.redirect = null;
+  state.bag = state.bag.filter(id => id !== p.id);
+  state.steps = state.steps.filter(s => !(s.t === "drink" && s.who === p.id) && !(s.t === "pick" && s.by === p.id && s.purpose !== "duell"));
+  if (cur() && cur().id === p.id) state.after = "pass";
+  return [{ t:"ko", who:p.id, voluntary: cause === "leave" }];
+}
+function hurt(p, n, cause){
+  if (!state.settings.ko || p.ko) return [];
+  p.hearts = Math.max(0, p.hearts - n);
+  return p.hearts > 0 ? [] : knockOut(p, cause);
+}
+function checkFullHouse(){
+  if (!state.settings.addons.full || !state.full.every(Boolean)) return;
+  state.steps.unshift({ t:"allDrink", excused:[], key:uid() });
+  emit({ type:"fullhouse" }); log({ kind:"fullhouse" });
+}
+function setFill(i, pid, sabotage){
+  state.full[i] = true;
+  state.lastFill = { glass:i, pid, rollId:state.rollId, t:Date.now(), sabotage:!!sabotage };
+}
+
+function eRoll(n){
+  if (state.phase !== "game" || state.steps.length || !cur() || !cur().active) return false;
+  n = Math.max(1, Math.min(6, n | 0));
+  pushUndo();
+  const p = cur(); const i = n - 1;
+  state.rollId++; state.lastRoll = n;
+  state.rolls.push(n); if (state.rolls.length > 12) state.rolls.shift();
+  const fullCount = state.full.filter(Boolean).length;
+  log({ kind:"roll", pid:p.id, roll:n });
+  if (state.full[i]){
+    if (fullCount === 1){ p.nearLast++; rage(2, p.id, `${p.name}. Glas ${n}. Das einzige volle Glas auf dem Tisch.`); }
+    const lf = state.lastFill;
+    if (lf && lf.glass === i && lf.rollId === state.rollId - 1 && lf.pid !== p.id){
+      p.nearRefill++;
+      const f = P(lf.pid); const sec = Math.max(1, Math.round((Date.now() - lf.t) / 1000));
+      rage(lf.sabotage ? 4 : 3, p.id, `${p.name}. Glas ${n}. ${sec} Sekunden, nachdem ${f ? f.name : "jemand"} es ${lf.sabotage ? "sabotiert" : "gefüllt"} hat.`);
+    }
+    let who = p.id, from = null, via = null;
+    const r = state.redirect;
+    if (r){ const t = P(r.target); if (t && t.active){ who = t.id; from = r.from; via = r.src; } state.redirect = null; }
+    state.steps.push({ t:"drink", who, from, via, glass:i, main:true, key:uid() });
+    state.after = "again";
+  } else {
+    state.steps.push({ t:"fill", glass:i, main:true });
+    state.after = "pass";
+  }
+  let run = 1; for (let k = state.rolls.length - 2; k >= 0 && state.rolls[k] === n; k--) run++;
+  const A = state.settings.addons;
+  if (run >= 3 && A.drilling){ p.drillings++; state.steps.push({ t:"drink", who:p.id, kurz:true, via:"drilling", key:uid() }); emit({ type:"banner", text:"Drilling!", sub:`Dreimal die ${n}. Kurzer für ${p.name}.` }); log({ kind:"drilling", pid:p.id, roll:n }); }
+  else if (run >= 2 && A.doppel){ state.steps.push({ t:"drink", who:p.id, kurz:true, via:"doppel", key:uid() }); emit({ type:"banner", text:"Doppel!", sub:`Zweimal die ${n}. Kurzer für ${p.name}.` }); log({ kind:"doppel", pid:p.id, roll:n }); }
+  return true;
+}
+
+function eConfirm(){
+  const s = state.steps[0]; if (!s || s.t === "pick") return false;
+  pushUndo(); state.eventId++;
+  const p = cur();
+  if (s.t === "fill"){
+    setFill(s.glass, p.id, false); p.streak = 0;
+    log({ kind:"fill", pid:p.id, roll:s.glass + 1 });
+    state.steps.shift();
+    checkFullHouse();
+  } else if (s.t === "drink"){
+    const d = P(s.who); state.steps.shift();
+    const front = [];
+    if (d){
+      if (s.kurz){
+        d.extras++;
+        log({ kind:"kurz", pid:d.id, via:s.via, from:s.from });
+        front.push(...hurt(d, 1, s.via));
+      } else {
+        const g = state.glasses[s.glass]; state.full[s.glass] = false;
+        d.drinks++; if (g.type === "shot") d.shots++;
+        log({ kind:"drink", pid:d.id, roll:s.glass + 1, label:glassLabel(s.glass), via:s.via, from:s.from });
+        const own = p && d.id === p.id && !s.from;
+        if (own){
+          p.streak++; p.best = Math.max(p.best, p.streak);
+          if (p.streak >= 4) rage(2 + p.streak, p.id, `${p.name}. ${p.streak} Gläser am Stück.`);
+          if (p.streak >= 3) emit({ type:"serie", pid:p.id, n:p.streak });
+        }
+        front.push(...hurt(d, g.type === "shot" ? 2 : 1, "glass"));
+        if (g.type === "shot" && state.settings.addons.duell && others(d.id).length) front.push({ t:"pick", purpose:"duell", by:d.id });
+        if (own && state.settings.addons.rache && p.active && p.streak > 0 && p.streak % 3 === 0 && others(p.id).length) front.push({ t:"pick", purpose:"rache", by:p.id });
+      }
+    }
+    state.steps.unshift(...front);
+  } else if (s.t === "allDrink"){
+    state.steps.shift(); const front = [];
+    active().forEach(q => { if (!s.excused.includes(q.id)){ q.extras++; front.push(...hurt(q, 1, "full")); } });
+    log({ kind:"allDrink", excused:s.excused.slice() });
+    state.steps.unshift(...front);
+  } else {
+    state.steps.shift();
+  }
+  finish();
+  return true;
+}
+
+function canJoker(){
+  const s = state.steps[0]; const p = cur();
+  return !!(s && s.t === "drink" && s.main && p && s.who === p.id && !s.from && state.settings.addons.joker && !p.jokerUsed && others(p.id).length);
+}
+function eJoker(){
+  if (!canJoker()) return false;
+  pushUndo(); const p = cur(); p.jokerUsed = true;
+  state.steps.unshift({ t:"pick", purpose:"joker", by:p.id });
+  return true;
+}
+
+function ePlayCard(){
+  const p = cur(); if (!p || state.phase !== "game") return "ctx";
+  const s = state.steps[0];
+  const ctx = !s || (s.t === "fill" && s.main) || s.t === "pass";
+  if (!ctx) return "ctx";
+  if (!state.settings.cards || !p.card || p.cardUsed) return "none";
+  if (CARDS[p.card].kind !== "attack") return "mismatch";
+  const fillIdx = s && s.t === "fill" ? s.glass : -1;
+  if (p.card === "sabotage" && !state.full.some((f, i) => !f && i !== fillIdx)) return "mismatch";
+  if ((p.card === "umleitung" || p.card === "barkeeper") && !others(p.id).length) return "mismatch";
+  pushUndo();
+  if (s && s.t === "fill"){
+    setFill(s.glass, p.id, false); p.streak = 0;
+    log({ kind:"fill", pid:p.id, roll:s.glass + 1 });
+    state.steps.shift(); state.steps.push({ t:"pass" });
+  }
+  p.cardUsed = true;
+  log({ kind:"card", pid:p.id, card:p.card });
+  emit({ type:"card", pid:p.id, card:p.card });
+  state.steps.unshift({ t:"pick", purpose:p.card, by:p.id });
+  if (fillIdx >= 0) checkFullHouse();
+  return "ok";
+}
+
+function pickTargets(s){
+  if (!s || s.t !== "pick") return [];
+  if (s.purpose === "engel"){ const a = state.steps[1]; return others(s.by).filter(q => !(a && a.excused && a.excused.includes(q.id))); }
+  return others(s.by);
+}
+function ePickPlayer(tid){
+  const s = state.steps[0]; if (!s || s.t !== "pick" || s.purpose === "sabotage" || s.purpose === "tausch") return false;
+  if (!pickTargets(s).some(q => q.id === tid)) return false;
+  pushUndo(); state.steps.shift();
+  const by = P(s.by), t = P(tid);
+  switch (s.purpose){
+    case "duell": case "barkeeper":
+      state.steps.unshift({ t:"drink", who:tid, from:s.by, via:s.purpose, kurz:true, key:uid() });
+      log({ kind:"target", pid:s.by, target:tid, via:s.purpose });
+      break;
+    case "rache": case "umleitung":
+      state.redirect = { target:tid, from:s.by, src:s.purpose };
+      log({ kind:"target", pid:s.by, target:tid, via:s.purpose });
+      emit({ type:"banner", text: s.purpose === "rache" ? "Rache!" : "Umleitung!", sub:`Das nächste volle Glas trinkt ${t.name}.` });
+      break;
+    case "joker": {
+      const d = state.steps[0];
+      if (d && d.t === "drink"){ d.who = tid; d.from = s.by; d.via = "joker"; }
+      log({ kind:"target", pid:s.by, target:tid, via:"joker" });
+      emit({ type:"banner", text:"Joker!", sub:`${by.name} gibt das Glas an ${t.name}.` });
+      break;
+    }
+    case "engel": {
+      const d = state.steps[0];
+      if (d && d.t === "allDrink") d.excused.push(tid);
+      log({ kind:"saved", pid:s.by, target:tid });
+      break;
+    }
+  }
+  finish();
+  return true;
+}
+function ePickGlass(i){
+  const s = state.steps[0]; if (!s || s.t !== "pick") return false;
+  if (s.purpose === "sabotage"){
+    if (state.full[i]) return false;
+    pushUndo(); setFill(i, s.by, true);
+    log({ kind:"sabotage", pid:s.by, roll:i + 1 });
+    state.steps.shift(); checkFullHouse(); finish();
+    return true;
+  }
+  if (s.purpose === "tausch"){
+    if (s.first == null || s.first === i){ s.first = s.first === i ? null : i; return true; }
+    pushUndo();
+    const a = s.first, b = i;
+    [state.glasses[a], state.glasses[b]] = [state.glasses[b], state.glasses[a]];
+    [state.full[a], state.full[b]] = [state.full[b], state.full[a]];
+    if (state.lastFill){ if (state.lastFill.glass === a) state.lastFill.glass = b; else if (state.lastFill.glass === b) state.lastFill.glass = a; }
+    log({ kind:"tausch", pid:s.by, a:a + 1, b:b + 1 });
+    state.steps.shift(); finish();
+    return true;
+  }
+  return false;
+}
+
+function eKonter(pid){
+  const s = state.steps[0]; if (!s || (s.t !== "drink" && s.t !== "allDrink")) return "ctx";
+  const p = P(pid); if (!p || !p.active) return "none";
+  if (!state.settings.cards || !p.card || p.cardUsed) return "none";
+  const c = p.card; let ok = false;
+  if (c === "glueckspilz") ok = s.t === "drink" ? s.who === pid : !s.excused.includes(pid);
+  else if (c === "spiegel") ok = s.t === "drink" && s.who === pid && !!s.from && s.from !== pid && !!P(s.from) && P(s.from).active;
+  else if (c === "schutzengel") ok = s.t === "drink" ? s.who !== pid : active().some(q => q.id !== pid && !s.excused.includes(q.id));
+  if (!ok) return "mismatch";
+  pushUndo(); p.cardUsed = true; p.konters++;
+  const target = s.t === "drink" ? (c === "spiegel" ? s.from : s.who) : null;
+  log({ kind:"konter", pid, card:c, target });
+  emit({ type:"card", pid, card:c, target });
+  if (c === "spiegel"){
+    const att = P(s.from);
+    rage(4, att.id, `${att.name}. Vom eigenen ${VIA[s.via] || "Angriff"} getroffen. Spiegel von ${p.name}.`);
+    s.who = s.from; s.from = pid; s.via = "spiegel";
+  } else if (s.t === "allDrink"){
+    if (c === "glueckspilz") s.excused.push(pid);
+    else state.steps.unshift({ t:"pick", purpose:"engel", by:pid });
+  } else {
+    state.steps.shift();
+    if (s.main) state.after = "pass";
+    finish();
+  }
+  return "ok";
+}
+
+function eLeave(id){
+  const idx = state.players.findIndex(p => p.id === id); const p = state.players[idx];
+  if (!p || !p.active) return false;
+  pushUndo(); state.eventId++;
+  let front = [];
+  if (state.settings.ko) front = knockOut(p, "leave");
+  else {
+    p.active = false; p.streak = 0; log({ kind:"leave", pid:id });
+    if (state.redirect && state.redirect.target === id) state.redirect = null;
+    state.bag = state.bag.filter(x => x !== id);
+    state.steps = state.steps.filter(s => !(s.t === "drink" && s.who === id) && !(s.t === "pick" && s.by === id));
+  }
+  if (idx === state.turn){ state.steps = []; state.after = "pass"; }
+  if (state.phase === "game"){ state.steps.unshift(...front); finish(); }
+  if (state.phase === "game" && !active().length && !state.joining) eEnd();
+  return true;
+}
+function eRejoin(id){
+  const p = P(id); if (!p || p.active || p.ko) return false;
+  pushUndo(); p.active = true; log({ kind:"rejoin", pid:id });
+  if (!cur() || !cur().active) state.turn = state.players.indexOf(p);
+  return true;
+}
+function eAdd(name, photoId){
+  if (!String(name || "").trim()) return null;
+  pushUndo();
+  const p = makePlayer(name, photoId);
+  state.players.splice(state.turn + 1, 0, p);
+  log({ kind:"add", pid:p.id });
+  if (state.settings.cards && state.phase === "game"){ state.peekQueue = [p.id]; state.peekReturn = "game"; state.phase = "peek"; }
+  return p;
+}
+function eEnd(){ state.phase = "end"; state.steps = []; state.after = null; state.joining = false; state.redirect = null; state.recapPending = true; }
+function eRematch(){
+  state.players.forEach(p => Object.assign(p, { active:true, ko:false, koAt:0, hearts:state.settings.hearts, drinks:0, shots:0, extras:0, streak:0, best:0,
+    card:null, cardUsed:false, jokerUsed:false, konters:0, drillings:0, nearLast:0, nearRefill:0 }));
+  state.deck = []; state.players.forEach(p => { p.card = dealCard(); });
+  Object.assign(state, { glasses:JSON.parse(JSON.stringify(state.config)), full:[false,false,false,false,false,false], steps:[], after:null, redirect:null,
+    rolls:[], history:[], proofs:[], rage:null, winners:null, lastFill:null, bag:[], joining:false, recapPending:false, handedFrom:null });
+  undoStack = [];
+  if (state.settings.order === "circle") state.turn = 0;
+  else { const ni = pickRandom(null); state.turn = ni < 0 ? 0 : ni; state.spin = { id:state.players[state.turn].id, slow:false }; }
+  if (state.settings.cards){ state.peekQueue = state.players.map(p => p.id); state.peekReturn = "game"; state.phase = "peek"; }
+  else state.phase = "game";
+}
+
+/* =====================================================================
+   OBERFLÄCHE
+   ===================================================================== */
+const app = document.getElementById("app");
+const sheetRoot = document.getElementById("sheet-root");
+const fxRoot = document.getElementById("fx-root");
+let headless = false;
+
+function act(fn){
+  const r = fn();
+  save();
+  if (!headless){ render(); pumpFx(); }
+  return r;
+}
+function toast(t){
+  if (headless) return;
+  const root = document.getElementById("toast-root");
+  root.innerHTML = `<div class="toast" role="status">${esc(t)}</div>`;
+  clearTimeout(toast._t); toast._t = setTimeout(() => { root.innerHTML = ""; }, 2200);
+}
+
+/* ---- Fotos ---- */
+function pickPhoto(front, opts){
+  return new Promise(resolve => {
+    const inp = document.createElement("input");
+    inp.type = "file"; inp.accept = "image/*";
+    inp.setAttribute("capture", front ? "user" : "environment");
+    inp.style.cssText = "position:fixed;left:-9999px";
+    document.body.appendChild(inp);
+    inp.addEventListener("change", () => {
+      const f = inp.files && inp.files[0]; inp.remove();
+      if (!f) return resolve(null);
+      const url = URL.createObjectURL(f); const img = new Image();
+      img.onload = () => { const d = shrink(img, opts); URL.revokeObjectURL(url); resolve(d); };
+      img.onerror = () => { URL.revokeObjectURL(url); resolve(null); };
+      img.src = url;
+    }, { once:true });
+    inp.click();
+  });
+}
+function shrink(src, opts){
+  try {
+    const w0 = src.videoWidth || src.naturalWidth, h0 = src.videoHeight || src.naturalHeight;
+    const c = document.createElement("canvas"); const ctx = c.getContext("2d");
+    if (opts.square){
+      const s = Math.min(w0, h0); c.width = c.height = opts.max;
+      ctx.drawImage(src, (w0 - s) / 2, (h0 - s) / 2, s, s, 0, 0, opts.max, opts.max);
+    } else {
+      const sc = Math.min(1, opts.max / Math.max(w0, h0));
+      c.width = Math.round(w0 * sc); c.height = Math.round(h0 * sc);
+      ctx.drawImage(src, 0, 0, c.width, c.height);
+    }
+    return c.toDataURL("image/jpeg", opts.q || 0.74);
+  } catch(e){ return null; }
+}
+function avatar(p, size){
+  const ph = p && p.photo && photos[p.photo];
+  const ini = esc(((p && p.name) || "?").trim().charAt(0).toUpperCase());
+  return `<span class="av av-${size}" style="--c:${colorOf(p)}">${ph ? `<img src="${ph}" alt="">` : ini}</span>`;
+}
+function proofImg(x, extra){
+  const frames = (x.frames || []).filter(f => photos[f]);
+  if (frames.length > 1) return `<img src="${photos[frames[0]]}" data-boom="${frames.join(",")}" alt="" ${extra||""}>`;
+  return photos[x.photo] ? `<img src="${photos[x.photo]}" alt="" ${extra||""}>` : "";
+}
+/* Boomerang-Animation: alle Bilder mit data-boom laufen 1-2-3-4-3-2 */
+const BOOM = [0,1,2,3,2,1]; let boomTick = 0;
+setInterval(() => {
+  const els = document.querySelectorAll("img[data-boom]"); if (!els.length) return;
+  boomTick++;
+  els.forEach(el => { const f = el.dataset.boom.split(","); const seq = BOOM.filter(k => k < f.length); const id = f[seq[boomTick % seq.length]]; if (photos[id] && el.getAttribute("src") !== photos[id]) el.src = photos[id]; });
+}, 120);
+
+/* ---- Gläser ---- */
+function glassSVG(i, type, opts){
+  const s = SHAPES[type]; const id = "c" + i + (opts.mini ? "m" : "");
+  const [x,y,w,h] = s.liq;
+  return `<svg viewBox="0 0 64 80" aria-hidden="true">
+    <defs><clipPath id="${id}"><path d="${s.body}"/></clipPath></defs>
+    <path class="shape" d="${s.body}"/>
+    <g clip-path="url(#${id})">
+      <rect class="liq" x="${x}" y="${y}" width="${w}" height="${h}"/>
+      <rect class="liq2" x="${x}" y="${y + h*0.55}" width="${w}" height="${h*0.45}"/>
+      ${s.foam ? `<rect class="foam" x="${s.foam[0]}" y="${s.foam[1]}" width="${s.foam[2]}" height="${s.foam[3]}" rx="3"/>` : ""}
+    </g>
+    <path class="shine" d="${s.shine}"/>
+    <path class="shape" d="${s.body}" style="fill:none"/>
+    ${s.extra}
+  </svg>`;
+}
+function glassHTML(i, cls, mini){
+  const g = mini ? state.config[i] : state.glasses[i];
+  const full = mini ? [true,false,true,true,false,true][i] : state.full[i];
+  return `<div class="g t-${g.type} ${full ? "full" : ""} ${cls || ""}" data-i="${i}">
+    ${glassSVG(i, g.type, { mini })}
+    <span class="gn">${i + 1}</span>
+    ${mini ? "" : `<span class="gl">${esc(TYPES[g.type] + (g.content ? " · " + g.content : ""))}</span>`}
+  </div>`;
+}
+const dieFace = n => Array.from({ length:9 }, (_,k) => `<span class="pip ${FACES[n].includes(k) ? "on" : ""}"></span>`).join("");
+
+function setTheme(color){
+  document.body.classList.toggle("color", !!color);
+  if (color) document.body.style.setProperty("--pc", color);
+  else document.body.style.removeProperty("--pc");
+}
+function render(){
+  if (headless) return;
+  app.className = "app " + state.phase;
+  document.body.classList.toggle("lock", ["game","join","peek"].includes(state.phase));
+  if (state.phase === "intro"){ setTheme(null); renderIntro(); }
+  else if (state.phase === "join"){ setTheme(PALETTE[state.players.length % PALETTE.length]); renderJoin(); }
+  else if (state.phase === "peek"){ setTheme(colorOf(P(state.peekQueue[0]))); renderPeek(); }
+  else if (state.phase === "game"){ setTheme(colorOf(cur())); renderGame(); fitStage(); }
+  else { setTheme(null); renderEnd(); }
+}
+/* Prüft, ob der Inhalt in der Mitte Platz hat, und verkleinert sonst schrittweise */
+function fitStage(){
+  const st = app.querySelector(".stage"); if (!st) return;
+  app.classList.remove("tight", "tighter", "tightest");
+  const over = () => {
+    const kids = [...st.children];
+    const cs = getComputedStyle(st);
+    const avail = st.clientHeight - parseFloat(cs.paddingTop || 0) - parseFloat(cs.paddingBottom || 0);
+    const need = kids.reduce((s, c) => s + (parseFloat(getComputedStyle(c).height) || c.offsetHeight), 0) + Math.max(0, kids.length - 1) * parseFloat(cs.rowGap || 0);
+    return need > avail - 2 || kids.some(c => c.scrollHeight > c.offsetHeight + 1);
+  };
+  if (over()){ app.classList.add("tight"); if (over()){ app.classList.add("tighter"); if (over()) app.classList.add("tightest"); } }
+}
+window.addEventListener("resize", () => { if (state.phase === "game" && !rolling) fitStage(); });
+
+/* ---- Startbildschirm ---- */
+function sw(id, on, label){ return `<button class="switch" role="switch" aria-checked="${!!on}" aria-label="${esc(label)}" data-act="sw" data-k="${id}"></button>`; }
+function renderIntro(){
+  const S = state.settings;
+  const shots = state.config.filter(g => g.type === "shot").length;
+  app.innerHTML = `
+  <header class="hero">
+    <span class="eyebrow">Trinkspiel · 6 Gläser · 1 Würfel</span>
+    <h1>Trink&shy;würfel</h1>
+    <p>Leeres Glas: auffüllen. Volles Glas: austrinken und nochmal. Das Handy würfelt, zählt mit und geht reihum.</p>
+  </header>
+  <div class="lineup">${[0,1,2,3,4,5].map(i => glassHTML(i, "", true)).join("")}</div>
+
+  <section class="setup" aria-label="Spiel einstellen">
+    <span class="eyebrow">Spiel einstellen</span>
+    <div class="opt">
+      <span class="t">Reihenfolge</span><span></span>
+      <div class="seg full" role="group" aria-label="Reihenfolge">
+        ${Object.keys(ORDERS).map(k => `<button data-act="order" data-k="${k}" aria-pressed="${S.order === k}">${ORDERS[k][0]}</button>`).join("")}
+      </div>
+      <span class="d">${ORDERS[S.order][1]}</span>
+    </div>
+    <div class="opt">
+      <span class="t">K.O.-Modus</span>${sw("ko", S.ko, "K.O.-Modus")}
+      <span class="d">Jedes Glas kostet ein Herz, der Shot zwei, jeder Extra-Kurze eins. Wer zuletzt übrig ist, gewinnt.</span>
+      ${S.ko ? `<div class="seg full" role="group" aria-label="Herzen">${[3,4,5].map(h => `<button data-act="hearts" data-k="${h}" aria-pressed="${S.hearts === h}">${h} Herzen</button>`).join("")}</div>` : ""}
+    </div>
+    <div class="opt">
+      <span class="t">Fähigkeitskarten</span>${sw("cards", S.cards, "Fähigkeitskarten")}
+      <span class="d">Beim Eintragen bekommen etwa zwei Drittel eine geheime Karte. Wer sie spielt, deckt sie auf.</span>
+    </div>
+    ${ADDONS.map(([k, n, d]) => `
+    <div class="opt">
+      <span class="t">${n}</span>${sw("a_" + k, S.addons[k], n)}
+      <span class="d">${d}</span>
+    </div>`).join("")}
+  </section>
+
+  <div class="startbar"><button class="btn" data-act="start-join">Los geht's</button></div>
+
+  <details class="more" id="glass-card">
+    <summary>Gläser anpassen <span class="soft" style="font-weight:600;margin-left:auto;margin-right:14px;font-size:14px">${6 - shots} Gläser, ${shots} Shot${shots === 1 ? "" : "s"}</span></summary>
+    <div class="section" style="margin-top:10px">
+      ${state.config.map((g,i) => `
+      <div class="grow">
+        <span class="num">${i + 1}</span>
+        <div class="seg" role="group" aria-label="Glas ${i + 1}">
+          ${Object.keys(TYPES).map(t => `<button data-act="gtype" data-i="${i}" data-t="${t}" aria-pressed="${g.type === t}">${TYPES[t]}</button>`).join("")}
+        </div>
+        <input class="field" id="gc-${i}" data-gc="${i}" maxlength="24" placeholder="Inhalt (optional), z. B. Vodka-E" value="${esc(g.content)}">
+      </div>`).join("")}
+    </div>
+  </details>
+  <details class="more">
+    <summary>Regeln und Karten</summary>
+    <ul class="rules">
+      <li>Alle 6 Gläser stehen am Anfang <b>leer</b> in der Mitte.</li>
+      <li>Leeres Glas gewürfelt: <b>auffüllen</b>, dann geht das Handy weiter.</li>
+      <li>Volles Glas gewürfelt: <b>austrinken</b> und sofort nochmal würfeln, bis ein leeres Glas kommt.</li>
+      <li><b>Karte spielen</b> geht im eigenen Zug, vor oder nach dem Würfeln. <b>Konter?</b> erscheint, sobald jemand trinken muss: tippen, dann auf das eigene Bild.</li>
+      <li>Wer nicht mehr mag, tippt unten auf sich und steigt aus. Im K.O.-Modus zählt das als K.O.</li>
+      <li>Wasser zwischendurch hilft. Und niemand muss.</li>
+    </ul>
+    <div class="cardlist">${Object.values(CARDS).map(c => `<div><span class="tag ${c.kind}">${c.kind === "attack" ? "Angriff" : "Konter"}</span><b>${c.name}</b><span>${c.text}</span></div>`).join("")}</div>
+  </details>
+  <p class="credit"><svg viewBox="0 0 64 80" aria-hidden="true"><defs><clipPath id="cr"><path d="M17 34 H47 L44 72 H20 Z"/></clipPath></defs><rect clip-path="url(#cr)" x="0" y="46" width="64" height="30" fill="var(--drink)"/><path d="M17 34 H47 L44 72 H20 Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/></svg><span>created by</span><b>Lion</b></p>
+  ${counting ? `<p class="privacy">Diese Seite zählt Aufrufe und Spielstarts anonym mit GoatCounter, ohne Cookies. Namen, Fotos und Spielstände bleiben auf deinem Handy.</p>` : ""}`;
+}
+
+/* ---- Eintragen ---- */
+function renderJoin(){
+  const n = state.players.length + 1;
+  const from = state.handedFrom && P(state.handedFrom);
+  const first = state.players.find(p => p.active);
+  app.innerHTML = `
+  <div class="join-head">
+    <div><span class="eyebrow">Spieler ${n}</span><h1>Wer bist du?</h1></div>
+    ${undoStack.length ? `<button class="ib" data-act="undo" aria-label="Rückgängig">${ICON.undo}</button>` : ""}
+  </div>
+  ${from ? `<p class="handoff">${esc(from.name)} hat weitergegeben. Neu am Tisch? Trag dich ein und würfel direkt los.</p>` : ""}
+  <form class="stack" id="join-form" autocomplete="off" style="gap:16px">
+    <button type="button" class="selfie" data-act="selfie" aria-label="Selfie aufnehmen">
+      ${draft.photo ? `<img src="${draft.photo}" alt="Dein Selfie">` : `<span>${ICON.cam}Selfie</span>`}
+    </button>
+    <input class="field name-input" id="join-name" maxlength="18" placeholder="Dein Name" value="${esc(draft.name)}" enterkeyhint="go">
+    <button type="submit" class="btn" id="join-submit" ${draft.name.trim() ? "" : "disabled"}>Eintragen und würfeln</button>
+  </form>
+  ${state.players.length ? `
+  <div class="stack" style="gap:12px">
+    <span class="eyebrow">Schon dabei</span>
+    <div class="seated">${state.players.map(p => `<div class="seat">${avatar(p,"m")}<span>${esc(p.name)}</span></div>`).join("")}</div>
+  </div>` : ""}
+  ${state.players.length >= 2 && first ? `
+  <div class="stack bottom">
+    <button class="btn alt" data-act="all-in">Alle sind drin · ${state.settings.order === "circle" ? esc(first.name) + " ist dran" : "los geht's"}</button>
+    <p class="note">${state.settings.order === "circle" ? `Ist das Handy wieder bei ${esc(first.name)}? Dann hier tippen.` : "Ab jetzt lost das Handy aus, wer dran ist."}</p>
+  </div>` : (state.players.length === 0 ? `<button class="btn alt bottom" data-act="to-intro">Zurück</button>` : "")}`;
+  const inp = document.getElementById("join-name");
+  inp.addEventListener("input", () => { draft.name = inp.value; document.getElementById("join-submit").disabled = !draft.name.trim(); });
+}
+
+/* ---- Geheime Karte ansehen ---- */
+function renderPeek(){
+  const p = P(state.peekQueue[0]); if (!p){ ePeekDone(); return render(); }
+  const c = p.card && CARDS[p.card];
+  const more = state.peekQueue.length > 1 ? P(state.peekQueue[1]) : null;
+  const multi = state.peekQueue.length > 1 || !state.joining;
+  app.innerHTML = `
+  <div class="stack" style="align-items:center;gap:8px">
+    <span class="eyebrow">${multi ? "Handy an " + esc(p.name) : "Geheime Karte"}</span>
+    <h1>${esc(p.name)}, nur du schaust hin</h1>
+  </div>
+  <div class="hold" id="hold" role="button" aria-label="Gedrückt halten, um deine Karte zu sehen">
+    <div class="face back"><span class="q">?</span><small>Gedrückt halten</small></div>
+    <div class="face front cardface">
+      ${c ? `<span class="tag ${c.kind}">${c.kind === "attack" ? "Angriff" : "Konter"}</span><span class="cn">${c.name}</span><span class="ct">${c.text}</span>`
+          : `<span class="none">Keine Karte.</span><span class="ct">Aber das weiß ja keiner.</span>`}
+    </div>
+  </div>
+  <div class="stack">
+    <button class="btn" data-act="peek-done">${more ? "Weiter · Handy an " + esc(more.name) : (state.peekReturn === "game" ? "Verstanden · los" : "Verstanden")}</button>
+    <p class="note">Karte spielen: im eigenen Zug auf „Karte spielen“. Konter: auf „Konter?“ und dann auf dein Bild.</p>
+  </div>`;
+  const h = document.getElementById("hold");
+  const on = e => { e.preventDefault(); h.classList.add("show"); };
+  const off = () => h.classList.remove("show");
+  h.addEventListener("pointerdown", on); h.addEventListener("pointerup", off); h.addEventListener("pointercancel", off); h.addEventListener("pointerleave", off);
+  h.addEventListener("contextmenu", e => e.preventDefault());
+}
+
+/* ---- Spiel ---- */
+function passLabel(){
+  if (state.joining && nobodyAfter(state.turn)) return "Handy weitergeben";
+  const ord = state.joining ? "circle" : state.settings.order;
+  if (ord === "circle"){ const ni = nextIndex(state.turn); return "weiter an " + esc(ni >= 0 ? state.players[ni].name : ""); }
+  return "nächste Person auslosen";
+}
+function hearts(p){
+  if (!state.settings.ko) return "";
+  const H = state.settings.hearts; let s = "";
+  for (let k = 0; k < H; k++) s += k < p.hearts ? "♥" : "<i>♥</i>";
+  return `<span class="hearts" aria-label="${p.hearts} Herzen">${s}</span>`;
+}
+function renderGame(){
+  const p = cur(); if (!p){ state.phase = "end"; return render(); }
+  const s = state.steps[0];
+  const S = state.settings;
+  const glassPick = s && s.t === "pick" && (s.purpose === "sabotage" || s.purpose === "tausch");
+  const cls = i => {
+    if (glassPick){
+      if (s.purpose === "sabotage") return state.full[i] ? "dim" : "pickable";
+      return "pickable" + (s.first === i ? " picked" : "");
+    }
+    if (s && s.main && s.glass === i) return "hit " + (s.t === "drink" ? "hit-drink" : "hit-fill");
+    return "";
+  };
+  const cardBtn = S.cards && !p.cardUsed ? `<button class="mini card-btn" data-act="card">${ICON.card} Karte spielen</button>` : "";
+  const konterBtn = S.cards && active().some(q => !q.cardUsed) ? `<button class="mini" data-act="konter">${ICON.shield} Konter?</button>` : "";
+  const camBtn = `<button class="mini" data-act="proof" aria-label="Beweisfoto">${ICON.cam}${(() => { const n = s && s.key ? state.proofs.filter(x => x.key === s.key).length : 0; return n ? " " + n : ""; })()}</button>`;
+  let showDie = true, verdict = "", actions = "", extra = "";
+
+  if (!s){
+    verdict = `<span class="line">${state.joining ? "Runde 1 · tipp auf den Würfel" : "Tipp auf den Würfel"}</span>`;
+    actions = `<button class="btn" data-act="roll">Würfeln</button>${cardBtn ? `<div class="minis">${cardBtn}</div>` : ""}`;
+  } else if (s.t === "fill"){
+    const g = state.glasses[s.glass];
+    const more = state.steps.length > 1;
+    verdict = `<span class="word">Auffüllen</span><span class="line">Glas ${s.glass + 1} ist leer${g.content ? " · " + esc(g.content) + " rein" : ""}</span>`;
+    actions = `<button class="btn" data-act="confirm">Aufgefüllt${more ? "" : ` <span class="sub">· ${passLabel()}</span>`}</button>${cardBtn ? `<div class="minis">${cardBtn}</div>` : ""}`;
+  } else if (s.t === "drink"){
+    const d = P(s.who); const g = s.kurz ? null : state.glasses[s.glass];
+    const fromP = s.from && P(s.from);
+    const reason = s.via ? VIA[s.via] + (fromP ? " von " + esc(fromP.name) : "") : "";
+    const what = s.kurz ? "einen Kurzen" : `Glas ${s.glass + 1}${g.type === "shot" ? " · den Shot" : ""}${g.content ? " · " + esc(g.content) : ""}`;
+    const own = d && d.id === p.id;
+    showDie = !!s.main;
+    verdict = `<span class="word">${s.kurz ? "Kurzer!" : "Trinken!"}</span>
+      ${own ? `<span class="line">${what}${reason ? " · " + reason : ""}</span>` : `<span class="whobar">${avatar(d,"s")}${esc(d ? d.name : "?")}</span><span class="line">trinkt ${what}${reason ? " · " + reason : ""}</span>`}
+      ${s.main && own && p.streak >= 1 && !s.from ? `<span class="streak">${p.streak + 1}. am Stück</span>` : ""}`;
+    const label = state.steps.length === 1 && s.main && state.after === "again" && d && d.id === p.id ? `Getrunken <span class="sub">· nochmal würfeln</span>` : "Getrunken";
+    actions = `<button class="btn" data-act="confirm">${label}</button>
+      <div class="minis">${konterBtn}${canJoker() ? `<button class="mini" data-act="joker">${ICON.swap} Joker</button>` : ""}${camBtn}</div>`;
+  } else if (s.t === "allDrink"){
+    showDie = false;
+    verdict = `<span class="word">Alle trinken!</span><span class="line">Volles Haus · jeder einen Kurzen</span>
+      <div class="allrow">${active().map(q => `<span class="x ${s.excused.includes(q.id) ? "saved" : ""}">${avatar(q,"s")}</span>`).join("")}</div>`;
+    actions = `<button class="btn" data-act="confirm">Alle haben getrunken</button><div class="minis">${konterBtn}${camBtn}</div>`;
+  } else if (s.t === "pick"){
+    showDie = false;
+    const by = P(s.by);
+    const T = { duell:["Shot-Duell!","wer trinkt einen Kurzen mit?"], rache:["Rache!","wer trinkt das nächste volle Glas?"], joker:["Joker!","wer bekommt dein Glas?"],
+      umleitung:["Umleitung!","wer trinkt das nächste volle Glas?"], barkeeper:["Barkeeper!","wer trinkt sofort einen Kurzen?"], engel:["Schutzengel!","wen rettest du?"],
+      sabotage:["Sabotage!","tippe ein leeres Glas an."], tausch:["Tausch!", s.first == null ? "tippe das erste Glas an." : "jetzt das zweite Glas."] }[s.purpose];
+    verdict = `<span class="word">${T[0]}</span><span class="line">${esc(by ? by.name : "")}, ${T[1]}</span>`;
+    if (!glassPick) extra = `<div class="picks">${pickTargets(s).map(q => `<button class="pk" data-act="pick" data-id="${q.id}">${avatar(q,"m")}<span>${esc(q.name)}</span></button>`).join("")}</div>`;
+  } else if (s.t === "pass"){
+    verdict = `<span class="word">Fertig</span><span class="line">Karte gespielt. Jetzt geht's weiter.</span>`;
+    actions = `<button class="btn" data-act="confirm">${passLabel().replace(/^./, c => c.toUpperCase())}</button>`;
+  } else if (s.t === "ko"){
+    showDie = false;
+    const d = P(s.who);
+    verdict = `<span class="whobar koed ko-av" style="position:relative">${avatar(d,"l")}<span class="stamp big"><span>K.O.</span></span></span>
+      <span class="line">${esc(d ? d.name : "")} ${s.voluntary ? "steigt aus" : "hat keine Herzen mehr"} und ist raus.</span>`;
+    actions = `<button class="btn" data-act="confirm">Weiter</button>`;
+  }
+
+  const rd = state.redirect && P(state.redirect.target);
+  app.innerHTML = `
+  <div class="top">
+    ${avatar(p,"m")}
+    <div class="who"><span class="eyebrow">ist dran</span><div class="name">${esc(p.name)}</div></div>
+    <div class="icons">
+      <button class="ib" data-act="undo" aria-label="Rückgängig" ${undoStack.length ? "" : "disabled"}>${ICON.undo}</button>
+      <button class="ib" data-act="board" aria-label="Rangliste">${ICON.board}</button>
+      <button class="ib" data-act="menu" aria-label="Menü">${ICON.menu}</button>
+    </div>
+  </div>
+  ${rd ? `<div class="redirect">${avatar(rd,"s")}<span>Nächstes volles Glas: ${esc(rd.name)} · ${VIA[state.redirect.src]}</span></div>` : ""}
+  <div class="table">${[0,1,2,3,4,5].map(i => glassHTML(i, cls(i))).join("")}</div>
+  <section class="stage" aria-live="polite">
+    ${showDie ? `<div class="die ${s ? "" : "idle"}" id="die" ${s ? "" : 'data-act="roll" role="button" tabindex="0" aria-label="Würfeln"'}>${dieFace(s && s.main ? s.glass + 1 : state.lastRoll)}</div>` : ""}
+    <div class="verdict">${verdict}</div>
+    ${extra}
+    <div class="actions">${actions}</div>
+  </section>
+  <div class="strip">${state.players.map((q,i) => `
+    <button class="pl ${i === state.turn ? "cur" : ""} ${q.ko ? "koed" : (q.active ? "" : "out")}" data-act="player" data-id="${q.id}" aria-label="${esc(q.name)}, ${tot(q)} Getränke">
+      <span class="wrap">${avatar(q,"s")}${S.cards && !q.cardUsed ? `<span class="cardic" aria-hidden="true"></span>` : ""}<span class="badge">${q.ko ? "K.O." : (q.active ? tot(q) : "raus")}</span></span>
+      <span class="nm">${esc(q.name)}</span>${q.active ? hearts(q) : ""}
+    </button>`).join("")}
+  </div>`;
+  if (state.joining && !s){
+    // Während der Einschreiberunde: kleiner Hinweis, wer schon drin ist
+  }
+}
+
+/* ---- Endstand ---- */
+function awards(){
+  const ps = state.players; if (!ps.length) return [];
+  const by = f => ps.slice().sort((a,b) => f(b) - f(a))[0];
+  const out = [];
+  const top = by(p => tot(p) * 10 + p.shots);
+  if (tot(top)) out.push(["Meiste Getränke", top, tot(top)]);
+  const sh = by(p => p.shots); if (sh.shots) out.push(["Meiste Shots", sh, sh.shots]);
+  const st = by(p => p.best); if (st.best > 1) out.push(["Längste Serie", st, st.best + "×"]);
+  const dr = by(p => p.drillings); if (dr.drillings) out.push(["Drilling-König", dr, dr.drillings + "×"]);
+  const ko = ps.find(p => p.konters > 0); if (ko) out.push(["Bester Konter", ko, CARDS[ko.card] ? CARDS[ko.card].name : "Konter"]);
+  const low = ps.slice().sort((a,b) => tot(a) - tot(b))[0];
+  if (ps.length > 1 && tot(top) && low !== top) out.push(["Wenigste Getränke", low, tot(low)]);
+  return out.slice(0, 6);
+}
+function nearLines(){
+  const out = [];
+  const a = state.players.slice().sort((x,y) => y.nearLast - x.nearLast)[0];
+  if (a && a.nearLast) out.push(`${esc(a.name)} hat ${a.nearLast}× genau das einzige volle Glas auf dem Tisch erwischt.`);
+  const b = state.players.slice().sort((x,y) => y.nearRefill - x.nearRefill)[0];
+  if (b && b.nearRefill) out.push(`${esc(b.name)} hat ${b.nearRefill}× genau das Glas getroffen, das die Person davor gerade gefüllt hatte.`);
+  return out;
+}
+function rankRows(){
+  const sorted = state.players.slice().sort((a,b) => (tot(b) - tot(a)) || (b.shots - a.shots));
+  return `<div class="rows">${sorted.map((p,i) => `
+    <div class="r"><span class="rk">${i + 1}</span>${avatar(p,"s")}
+      <span class="nm">${esc(p.name)}<small>${p.drinks} Gläser · ${p.extras} Kurze · ${p.shots} Shot${p.shots === 1 ? "" : "s"}${state.settings.ko ? " · " + (p.ko ? "K.O." : p.hearts + " ♥") : (p.active ? "" : " · ausgestiegen")}</small></span>
+      <span class="val">${tot(p)}</span></div>`).join("")}</div>`;
+}
+function renderEnd(){
+  const aw = awards(); const total = state.players.reduce((s,p) => s + tot(p), 0);
+  const pics = state.proofs.filter(x => photos[x.photo]);
+  const W = (state.winners || []).map(P).filter(Boolean);
+  const rg = state.rage && P(state.rage.pid);
+  const near = nearLines();
+  app.innerHTML = `
+  <header class="hero">
+    <span class="eyebrow">${total} ${total === 1 ? "Getränk" : "Getränke"} insgesamt</span>
+    <h1>Endstand</h1>
+  </header>
+  ${W.length ? `<div class="winner"><span class="crown">Last Man Standing</span><div class="avs">${W.map(p => avatar(p,"l")).join("")}</div><h2>${W.map(p => esc(p.name)).join(" & ")}</h2><span class="soft" style="color:rgba(255,255,255,.75)">${W.length > 1 ? "Gemeinsam als Letzte übrig." : "Als Letzte übrig, mit " + W[0].hearts + " ♥."}</span></div>` : ""}
+  ${aw.length ? `<div class="awards">${aw.map(a => `<div class="award"><span class="eyebrow">${a[0]}</span><span class="val">${a[2]}</span><div class="who">${avatar(a[1],"s")}<span>${esc(a[1].name)}</span></div></div>`).join("")}</div>` : ""}
+  ${rg ? `<div class="rage">${avatar(rg,"m")}<div class="txt"><span class="lbl">Rage-Moment des Abends</span><span class="q">${esc(state.rage.text)}</span></div></div>` : ""}
+  ${near.length ? `<div class="section"><span class="eyebrow">Knapp daneben</span><div class="near">${near.map(t => `<p>${t}</p>`).join("")}</div></div>` : ""}
+  <div class="section"><span class="eyebrow">Rangliste</span><div class="panel">${rankRows()}</div></div>
+  ${state.settings.cards ? `<div class="section"><span class="eyebrow">Die Karten</span><div class="panel"><div class="rows">${state.players.map(p => `<div class="r">${avatar(p,"s")}<span class="nm">${esc(p.name)}<small>${p.card ? (p.cardUsed ? "gespielt" : "nie gespielt") : "keine Karte"}</small></span>${p.card ? `<span class="tag ${CARDS[p.card].kind}">${CARDS[p.card].name}</span>` : ""}</div>`).join("")}</div></div></div>` : ""}
+  <div class="section"><span class="eyebrow">Beweisfotos</span>
+    ${pics.length ? `<div class="gallery">${pics.map(x => { const q = P(x.pid); return `<figure>${proofImg(x, `alt="Beweisfoto"`)}${x.frames && x.frames.length > 1 ? `<span class="boomtag">BOOMERANG</span>` : ""}<figcaption><span class="cap">${esc(q ? q.name : "Alle")}<small>${esc(x.label)}</small></span>${canDownload() ? `<button class="save" data-act="save-one" data-ph="${x.photo}" aria-label="Foto speichern">${ICON.down}</button>` : ""}</figcaption></figure>`; }).join("")}</div>`
+      : `<p class="empty">Keine Beweisfotos. Beim nächsten Mal beim Trinken auf das Kamera-Symbol tippen.</p>`}
+  </div>
+  ${allPhotos().length ? `<div class="stack">
+    ${canDownload() ? `<button class="btn" data-act="save-all">${ICON.down} Alle Fotos herunterladen</button><p class="note">Beweisfotos, Boomerangs als GIF und Selfies in einer ZIP-Datei.</p>`
+      : `<p class="note">Speichern geht hier nicht direkt: Foto gedrückt halten und „Bild sichern“ wählen.</p>`}
+    <p class="dl-msg" id="dl-msg" aria-live="polite"></p>
+  </div>` : ""}
+  <div class="stack">
+    ${active().length && !state.winners ? `<button class="btn" data-act="resume">Weiterspielen</button>` : ""}
+    <button class="btn alt" data-act="recap">Rückblick nochmal ansehen</button>
+    <button class="btn alt" data-act="rematch">Neue Runde, gleiche Leute</button>
+    <button class="btn alt" data-act="reset" data-confirm="Sicher? Nochmal tippen">Alles neu</button>
+  </div>`;
+}
+
+/* ---- Sheets ---- */
+function openSheet(title, body){
+  sheetRoot.innerHTML = `<div class="overlay" data-act="close-sheet"><div class="sheet" role="dialog" aria-label="${esc(title)}">
+    <div class="sheet-head"><h3>${esc(title)}</h3><button class="ib" data-act="close-sheet" aria-label="Schließen">${ICON.close}</button></div>
+    ${body}</div></div>`;
+}
+const closeSheet = () => { sheetRoot.innerHTML = ""; };
+function playerSheet(id){
+  const p = P(id); if (!p) return;
+  const ko = state.settings.ko;
+  openSheet(p.name, `
+    <div style="display:flex;justify-content:center;position:relative" class="${p.ko ? "koed" : ""}">${avatar(p,"l")}${p.ko ? `<span class="stamp big"><span>K.O.</span></span>` : ""}</div>
+    <div class="stats3"><div><b>${p.drinks}</b><span>Gläser</span></div><div><b>${p.extras}</b><span>Kurze</span></div><div><b>${p.shots}</b><span>Shots</span></div><div><b>${ko ? p.hearts : p.best}</b><span>${ko ? "Herzen" : "beste Serie"}</span></div></div>
+    <div class="stack">
+      <button class="btn alt" data-act="rephoto" data-id="${p.id}">Neues Selfie</button>
+      ${p.active ? `<button class="btn" data-act="leave" data-id="${p.id}" data-confirm="Sicher? Nochmal tippen">${ko ? "Aussteigen (zählt als K.O.)" : "Aussteigen"}</button>`
+                 : (p.ko ? "" : `<button class="btn" data-act="rejoin" data-id="${p.id}">Wieder einsteigen</button>`)}
+    </div>`);
+}
+function historySheet(){
+  const rows = state.history.slice().reverse().filter(h => h.kind !== "roll").slice(0, 100).map(h => {
+    const q = P(h.pid); const nm = esc(q ? q.name : "?"); const tg = h.target && P(h.target) ? esc(P(h.target).name) : "";
+    const txt = { drink:`${nm} trinkt Glas ${h.roll}${h.via ? " · " + VIA[h.via] : ""}`, fill:`${nm} füllt auf`, kurz:`${nm} trinkt einen Kurzen · ${VIA[h.via] || ""}`,
+      leave:`${nm} steigt aus`, rejoin:`${nm} ist wieder dabei`, add:`${nm} kommt dazu`, ko:`${nm} ist K.O.`, card:`${nm} spielt ${CARDS[h.card] ? CARDS[h.card].name : "eine Karte"}`,
+      konter:`${nm} kontert mit ${CARDS[h.card] ? CARDS[h.card].name : ""}${tg ? " · " + tg : ""}`, target:`${nm} wählt ${tg} · ${VIA[h.via] || ""}`,
+      sabotage:`${nm} sabotiert Glas ${h.roll}`, tausch:`${nm} tauscht Glas ${h.a} und ${h.b}`, fullhouse:"Volles Haus!", allDrink:"Alle haben getrunken",
+      doppel:`Doppel für ${nm}`, drilling:`Drilling für ${nm}`, saved:`${nm} rettet ${tg}` }[h.kind];
+    const dotCls = ["drink","kurz","allDrink"].includes(h.kind) ? "d" : (["card","konter","target","sabotage","tausch"].includes(h.kind) ? "c" : "f");
+    const dot = `<span class="dot ${dotCls}">${h.roll || (h.kind === "leave" || h.kind === "ko" ? "–" : "•")}</span>`;
+    return txt ? `<div class="r">${dot}<span>${txt}</span></div>` : "";
+  }).join("");
+  openSheet("Verlauf", rows ? `<div class="rows hist">${rows}</div>` : `<p class="empty">Noch nichts passiert.</p>`);
+}
+function rulesSheet(){
+  const S = state.settings; const on = ADDONS.filter(a => S.addons[a[0]]);
+  openSheet("Regeln", `
+    <div class="rows">
+      <div class="r"><span class="nm">Reihenfolge<small>${ORDERS[S.order][0]}</small></span></div>
+      <div class="r"><span class="nm">K.O.-Modus<small>${S.ko ? S.hearts + " Herzen · Glas 1, Shot 2, Kurzer 1" : "aus"}</small></span></div>
+      <div class="r"><span class="nm">Fähigkeitskarten<small>${S.cards ? "an" : "aus"}</small></span></div>
+      ${on.map(a => `<div class="r"><span class="nm">${a[1]}<small>${a[2]}</small></span></div>`).join("") || `<div class="r"><span class="nm">Keine Add-ons</span></div>`}
+    </div>
+    ${S.cards ? `<div class="cardlist">${Object.values(CARDS).map(c => `<div><span class="tag ${c.kind}">${c.kind === "attack" ? "Angriff" : "Konter"}</span><b>${c.name}</b><span>${c.text}</span></div>`).join("")}</div>` : ""}`);
+}
+function menuSheet(){
+  openSheet("Menü", `
+    <form class="stack" id="add-form" autocomplete="off">
+      <span class="eyebrow">Jemand kommt dazu</span>
+      <input class="field" id="add-name" maxlength="18" placeholder="Name">
+      <button type="submit" class="btn alt">Mit Selfie hinzufügen</button>
+      <p class="note" style="text-align:left">Sitzt dann direkt nach ${esc(cur() ? cur().name : "")}.</p>
+    </form>
+    <div class="stack">
+      <button class="btn alt" data-act="rules">Regeln und Karten</button>
+      <button class="btn alt" data-act="history">Verlauf</button>
+      <button class="btn" data-act="end">Abend beenden</button>
+      <button class="btn alt" data-act="reset" data-confirm="Sicher? Nochmal tippen">Spiel abbrechen</button>
+    </div>`);
+}
+function konterSheet(){
+  openSheet("Wer kontert?", `
+    <p class="note" style="text-align:left">Tippe auf dein eigenes Bild. Passt deine Karte, wird sie sofort gespielt.</p>
+    <div class="picks">${active().map(q => `<button class="pk" data-act="konter-by" data-id="${q.id}">${avatar(q,"m")}<span>${esc(q.name)}</span></button>`).join("")}</div>`);
+}
+
+/* ---- Effekte (Overlays) ---- */
+let fxBusy = false;
+function pumpFx(){
+  if (state.spin){ fxQ.push({ type:"spin", id:state.spin.id, slow:state.spin.slow }); state.spin = null; save(); }
+  if (state.phase === "end" && state.recapPending){ fxQ.push({ type:"recap" }); state.recapPending = false; save(); }
+  if (fxBusy || !fxQ.length || headless) return;
+  showFx(fxQ.shift());
+}
+function fxDone(){ fxRoot.innerHTML = ""; fxBusy = false; clearTimeout(fxDone._t); (fxDone._iv || []).forEach(clearInterval); fxDone._iv = []; pumpFx(); }
+function fxShell(html, ms, cls){
+  fxBusy = true;
+  fxRoot.innerHTML = `<div class="fx ${cls || ""}" data-act="fx-skip">${html}<span class="skip">Tippen zum Überspringen</span></div>`;
+  clearTimeout(fxDone._t); if (ms) fxDone._t = setTimeout(fxDone, ms);
+}
+function slideFrames(p){ return p && p.photo && photos[p.photo] ? `<img src="${photos[p.photo]}" alt="">` : `<span class="ini" style="color:${colorOf(p)}">${esc(((p && p.name) || "?").charAt(0).toUpperCase())}</span>`; }
+function showFx(f){
+  if (!f) return;
+  fxDone._iv = fxDone._iv || [];
+  if (f.type === "banner"){
+    fxShell(`<div class="big">${esc(f.text)}</div><div class="sub">${esc(f.sub || "")}</div>`, 1500);
+    buzz([60,40,60]);
+  } else if (f.type === "card"){
+    const p = P(f.pid); const c = CARDS[f.card]; const t = f.target && P(f.target);
+    fxShell(`<div class="who">${avatar(p,"s")}${esc(p ? p.name : "")} spielt</div>
+      <div class="bigcard cardface"><span class="tag ${c.kind}">${c.kind === "attack" ? "Angriff" : "Konter"}</span><span class="cn">${c.name}</span><span class="ct">${c.text}</span></div>
+      ${t ? `<div class="sub">${f.card === "spiegel" ? "zurück an " : "für "}${esc(t.name)}</div>` : ""}`, 2300);
+    buzz([40,30,90]);
+  } else if (f.type === "fullhouse"){
+    const ps = active();
+    fxShell(`<div class="show" id="fx-show">${slideFrames(ps[0])}</div><div class="big">Alle trinken!</div><div class="sub">Volles Haus · jeder einen Kurzen</div>`, 2600);
+    let k = 0; const el = document.getElementById("fx-show");
+    fxDone._iv.push(setInterval(() => { k++; if (el && ps.length) el.innerHTML = slideFrames(ps[k % ps.length]); }, 150));
+    buzz([100,60,100,60,160]);
+  } else if (f.type === "serie"){
+    const p = P(f.pid); const pr = state.proofs.filter(x => x.pid === f.pid && photos[x.photo]);
+    if (!pr.length){ fxShell(`<div class="who">${avatar(p,"m")}</div><div class="big">${f.n} am Stück!</div><div class="sub">${esc(p ? p.name : "")}, schon wieder.</div>`, 1600); return; }
+    fxShell(`<div class="show" id="fx-show">${proofImg(pr[0])}</div><div class="big">${f.n} am Stück!</div><div class="sub">${esc(p.name)}, schon wieder.</div>`, 2400);
+    let k = 0; const el = document.getElementById("fx-show");
+    fxDone._iv.push(setInterval(() => { k++; if (el) el.innerHTML = proofImg(pr[k % pr.length]); }, 600));
+  } else if (f.type === "spin"){
+    const ps = active(); const target = P(f.id);
+    if (!target || ps.length < 2){ fxDone(); return; }
+    fxShell(`<div class="eyebrow" style="color:rgba(255,255,255,.75)">Wer ist dran?</div><div class="show" id="fx-show">${slideFrames(ps[0])}</div><div class="spinname" id="fx-name">${esc(ps[0].name)}</div>`, 0);
+    const el = document.getElementById("fx-show"), nm = document.getElementById("fx-name");
+    const total = f.slow ? 22 : 15; let k = rndInt(ps.length), step = 0;
+    const tick = () => {
+      if (!fxBusy) return;
+      step++;
+      const q = step >= total ? target : ps[k++ % ps.length];
+      if (el) el.innerHTML = slideFrames(q); if (nm) nm.textContent = q.name;
+      if (step >= total){ if (nm) nm.textContent = q.name + " ist dran!"; buzz(50); fxDone._t = setTimeout(fxDone, 1100); return; }
+      const dly = 60 + Math.pow(step / total, 3) * (f.slow ? 520 : 300);
+      fxDone._t = setTimeout(tick, dly);
+    };
+    fxDone._t = setTimeout(tick, 80);
+  } else if (f.type === "recap"){
+    const slides = [];
+    state.proofs.filter(x => photos[x.photo]).forEach(x => { const q = P(x.pid); slides.push(`<div class="eyebrow" style="color:rgba(255,255,255,.75)">Rückblick</div><div class="show">${proofImg(x)}</div><div class="cap">${esc(q ? q.name : "Alle")}</div><div class="sub">${esc(x.label)}</div>`); });
+    if (state.settings.cards) state.players.forEach(q => { const c = q.card && CARDS[q.card];
+      slides.push(`<div class="eyebrow" style="color:rgba(255,255,255,.75)">Die Karten</div><div class="who">${avatar(q,"m")}${esc(q.name)}</div>${c ? `<div class="bigcard cardface"><span class="tag ${c.kind}">${c.kind === "attack" ? "Angriff" : "Konter"}</span><span class="cn">${c.name}</span><span class="ct">${q.cardUsed ? "gespielt" : "nie gespielt"}</span></div>` : `<div class="big" style="font-size:40px">Keine Karte</div><div class="sub">Hat geblufft.</div>`}`); });
+    const W = (state.winners || []).map(P).filter(Boolean);
+    if (W.length) slides.push(`<span class="crown">Last Man Standing</span><div class="who" style="gap:14px">${W.map(p => avatar(p,"l")).join("")}</div><div class="big" style="font-size:clamp(40px,12vw,72px)">${W.map(p => esc(p.name)).join(" & ")}</div>`);
+    if (!slides.length){ fxDone(); return; }
+    let k = 0;
+    const show = () => {
+      if (k >= slides.length){ fxDone(); return; }
+      const last = W.length && k === slides.length - 1;
+      fxShell(slides[k], 0, last ? "win" : ""); k++;
+      fxDone._t = setTimeout(show, last ? 3200 : 1500);
+    };
+    fxBusy = true; show();
+    fxRoot.dataset.recap = "1";
+  } else fxDone();
+}
+
+/* ---- Würfeln mit Fake-Spannung ---- */
+function doRoll(){
+  if (rolling || state.phase !== "game" || state.steps.length || fxBusy) return;
+  rolling = true;
+  const n = rnd6();
+  const fullNow = state.full.slice();
+  let tease = 0;
+  if (!reduced && rndInt(100) < 22){
+    if (fullNow[n - 1]){ const e = [0,1,2,3,4,5].filter(i => !fullNow[i]); if (e.length) tease = e[rndInt(e.length)] + 1; }
+    else { const f = [0,1,2,3,4,5].filter(i => fullNow[i]); if (f.length){ const sh = f.filter(i => state.glasses[i].type === "shot"); const pool = sh.length ? sh : f; tease = pool[rndInt(pool.length)] + 1; } }
+  }
+  const die = document.getElementById("die");
+  const done = () => {
+    rolling = false;
+    act(() => eRoll(n));
+    const s = state.steps[0];
+    if (s && s.t === "drink"){ buzz([90,60,90]); const f = document.getElementById("flash"); f.classList.remove("on"); void f.offsetWidth; f.classList.add("on"); }
+    else buzz(25);
+  };
+  if (!die || reduced){ done(); return; }
+  die.classList.remove("idle"); die.classList.add("rolling");
+  let k = 0;
+  const iv = setInterval(() => { k = (k + 1 + rndInt(5)) % 6; die.innerHTML = dieFace(k + 1); }, 70);
+  if (!tease){
+    setTimeout(() => { clearInterval(iv); die.innerHTML = dieFace(n); }, 620);
+    setTimeout(done, 720);
+  } else {
+    const gEl = () => document.querySelector(`.g[data-i="${tease - 1}"]`);
+    setTimeout(() => { clearInterval(iv); die.classList.remove("rolling"); die.innerHTML = dieFace(tease); die.classList.add("teeter"); const g = gEl(); g && g.classList.add("tease"); }, 620);
+    setTimeout(() => { die.classList.remove("teeter"); die.classList.add("tip"); }, 1520);
+    setTimeout(() => { die.classList.remove("tip"); die.innerHTML = dieFace(n); const g = gEl(); g && g.classList.remove("tease"); }, 1800);
+    setTimeout(done, 1950);
+  }
+}
+
+/* ---- Beweisfoto & Boomerang ---- */
+let camStream = null, camFacing = "environment";
+function proofContext(){
+  const s = state.steps[0]; if (!s || (s.t !== "drink" && s.t !== "allDrink")) return null;
+  return { key:s.key, pid: s.t === "drink" ? s.who : null, label: s.t === "allDrink" ? "Volles Haus" : (s.kurz ? "Kurzer · " + (VIA[s.via] || "") : "Glas " + (s.glass + 1) + " · " + glassLabel(s.glass)) };
+}
+function addProof(ctx, frames){
+  const ids = frames.map(d => { const id = "pr_" + uid(); savePhoto(id, d); return id; });
+  state.proofs.push({ photo:ids[0], frames: ids.length > 1 ? ids : null, pid:ctx.pid, label:ctx.label, key:ctx.key, t:Date.now() });
+  save(); render();
+}
+async function takeProof(){
+  const ctx = proofContext(); if (!ctx) return;
+  if (!inSandbox && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) return openCam(ctx);
+  const d = await pickPhoto(false, { max:720, square:false }); if (d) addProof(ctx, [d]);
+}
+function closeCam(){ if (camStream){ camStream.getTracks().forEach(t => t.stop()); camStream = null; } document.getElementById("cam-root") && document.getElementById("cam-root").remove(); }
+async function openCam(ctx){
+  closeCam();
+  const root = document.createElement("div"); root.id = "cam-root"; root.className = "cam";
+  root.innerHTML = `<video playsinline muted autoplay></video><div class="hint">Boomerang: 4 Bilder in einer Sekunde</div>
+    <div class="bar"><button class="cb" data-cam="cancel">Abbrechen</button><button class="shutter" data-cam="shoot" aria-label="Boomerang aufnehmen"></button><button class="cb" data-cam="flip">Drehen</button></div>`;
+  document.body.appendChild(root);
+  const video = root.querySelector("video");
+  const start = async () => {
+    try {
+      if (camStream) camStream.getTracks().forEach(t => t.stop());
+      camStream = await navigator.mediaDevices.getUserMedia({ video:{ facingMode:camFacing, width:{ ideal:720 }, height:{ ideal:960 } }, audio:false });
+      video.srcObject = camStream; await video.play().catch(() => {});
+    } catch(e){
+      root.innerHTML = `<div class="msg"><b style="font-size:20px">Kamera nicht freigegeben</b><span>Du kannst stattdessen ein normales Foto machen.</span>
+        <button class="btn" style="max-width:320px" data-cam="file">Foto aufnehmen</button><button class="cb" data-cam="cancel">Abbrechen</button></div>`;
+    }
+  };
+  root.addEventListener("click", async e => {
+    const b = e.target.closest("[data-cam]"); if (!b) return;
+    const a = b.dataset.cam;
+    if (a === "cancel") closeCam();
+    else if (a === "flip"){ camFacing = camFacing === "user" ? "environment" : "user"; start(); }
+    else if (a === "file"){ closeCam(); const d = await pickPhoto(false, { max:720, square:false }); if (d) addProof(ctx, [d]); }
+    else if (a === "shoot"){
+      if (!video.videoWidth) return;
+      b.disabled = true; const frames = [];
+      for (let k = 0; k < 4; k++){
+        root.classList.remove("snap"); void root.offsetWidth; root.classList.add("snap");
+        const d = shrink(video, { max:360, square:false, q:0.7 }); if (d) frames.push(d);
+        await new Promise(r => setTimeout(r, 140));
+      }
+      closeCam();
+      if (frames.length){ addProof(ctx, frames); toast("Boomerang gespeichert"); buzz(30); }
+    }
+  });
+  start();
+}
+
+/* ---- GIF aus Boomerang (eigener kleiner Encoder) ---- */
+function loadImg(src){ return new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = src; }); }
+function lzw(idx, minSize){
+  const clear = 1 << minSize, eoi = clear + 1, out = [];
+  let nBits = minSize + 1, maxcode = (1 << nBits) - 1, freeEnt = eoi + 1, clearFlg = false, acc = 0, bits = 0;
+  const dict = new Map();
+  const output = code => {
+    acc |= code << bits; bits += nBits;
+    while (bits >= 8){ out.push(acc & 255); acc >>>= 8; bits -= 8; }
+    if (freeEnt > maxcode || clearFlg){
+      if (clearFlg){ nBits = minSize + 1; maxcode = (1 << nBits) - 1; clearFlg = false; }
+      else { nBits++; maxcode = nBits === 12 ? 4096 : (1 << nBits) - 1; }
+    }
+  };
+  output(clear);
+  let ent = idx[0];
+  for (let i = 1; i < idx.length; i++){
+    const c = idx[i]; const key = ent * 256 + c; const v = dict.get(key);
+    if (v !== undefined){ ent = v; continue; }
+    output(ent); ent = c;
+    if (freeEnt < 4096) dict.set(key, freeEnt++);
+    else { dict.clear(); freeEnt = eoi + 1; clearFlg = true; output(clear); }
+  }
+  output(ent); output(eoi);
+  if (bits > 0) out.push(acc & 255);
+  return out;
+}
+async function makeGif(ids){
+  const imgs = await Promise.all(ids.map(id => loadImg(photos[id])));
+  const w = imgs[0].naturalWidth, h = imgs[0].naturalHeight;
+  const cv = document.createElement("canvas"); cv.width = w; cv.height = h; const ctx = cv.getContext("2d");
+  const bytes = []; const push = (...b) => b.forEach(x => bytes.push(x)); const u16 = v => push(v & 255, (v >> 8) & 255);
+  "GIF89a".split("").forEach(ch => push(ch.charCodeAt(0)));
+  u16(w); u16(h); push(0xF7, 0, 0);
+  for (let r = 0; r < 6; r++) for (let g = 0; g < 7; g++) for (let b = 0; b < 6; b++) push(r * 51, Math.round(g * 42.5), b * 51);
+  for (let k = 252; k < 256; k++) push(0, 0, 0);
+  push(0x21, 0xFF, 0x0B); "NETSCAPE2.0".split("").forEach(ch => push(ch.charCodeAt(0))); push(3, 1, 0, 0, 0);
+  const bayer = [0,8,2,10,12,4,14,6,3,11,1,9,15,7,13,5];
+  const order = BOOM.filter(k => k < imgs.length);
+  const cache = {};
+  for (const fi of order){
+    if (!cache[fi]){
+      ctx.drawImage(imgs[fi], 0, 0, w, h);
+      const d = ctx.getImageData(0, 0, w, h).data; const ix = new Uint8Array(w * h);
+      for (let y = 0, p = 0; y < h; y++) for (let x = 0; x < w; x++, p++){
+        const t = bayer[(y & 3) * 4 + (x & 3)] / 16 - 0.47; const o = p * 4;
+        const r = Math.min(5, Math.max(0, Math.round(d[o] / 51 + t)));
+        const g = Math.min(6, Math.max(0, Math.round(d[o+1] / 42.5 + t)));
+        const b = Math.min(5, Math.max(0, Math.round(d[o+2] / 51 + t)));
+        ix[p] = r * 42 + g * 6 + b;
+      }
+      cache[fi] = lzw(ix, 8);
+    }
+    push(0x21, 0xF9, 0x04, 0x04); u16(12); push(0, 0);
+    push(0x2C); u16(0); u16(0); u16(w); u16(h); push(0);
+    push(8);
+    const data = cache[fi];
+    for (let i = 0; i < data.length; i += 255){ const chunk = data.slice(i, i + 255); push(chunk.length); chunk.forEach(x => bytes.push(x)); }
+    push(0);
+  }
+  push(0x3B);
+  return new Blob([new Uint8Array(bytes)], { type:"image/gif" });
+}
+
+/* ---- Downloads ---- */
+let dl = null;
+(async () => {
+  try { dl = window.claude && window.claude.use ? await window.claude.use("downloads") : null; } catch(e){ dl = null; }
+  if (dl && state.phase === "end" && !headless) render();
+})();
+const canDownload = () => !!dl || !inSandbox;
+const slug = s => String(s || "").normalize("NFKD").replace(/[̀-ͯ]/g, "").replace(/[^A-Za-z0-9]+/g, "-").replace(/^-|-$/g, "") || "x";
+function dataToBlob(d){
+  const [head, b64] = d.split(",");
+  const bin = atob(b64); const arr = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+  return new Blob([arr], { type:(head.match(/data:([^;]+)/) || [])[1] || "image/jpeg" });
+}
+function allPhotos(){
+  const out = [];
+  state.proofs.forEach((x, i) => {
+    if (!photos[x.photo]) return;
+    const q = P(x.pid); const base = `Beweisfotos/${String(i + 1).padStart(2, "0")}_${slug(q ? q.name : "Alle")}`;
+    out.push({ proof:x, name: base + (x.frames && x.frames.length > 1 ? "_Boomerang.gif" : ".jpg") });
+  });
+  state.players.forEach(p => { if (p.photo && photos[p.photo]) out.push({ id:p.photo, name:`Selfies/${slug(p.name)}.jpg` }); });
+  return out;
+}
+async function fileBlob(f){
+  if (f.proof && f.proof.frames && f.proof.frames.length > 1) return makeGif(f.proof.frames.filter(id => photos[id]));
+  return dataToBlob(photos[f.proof ? f.proof.photo : f.id]);
+}
+async function saveFile(filename, blob){
+  if (dl) return dl.save({ filename, data:blob });
+  const url = URL.createObjectURL(blob); const a = document.createElement("a");
+  a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 4000);
+  return { status:"saved" };
+}
+function dlMsg(t){ const m = document.getElementById("dl-msg"); if (m) m.textContent = t; }
+function dlError(e){
+  const c = e && e.code;
+  if (c === "declined") return dlMsg("");
+  if (c === "rate_limited") return dlMsg("Es ist schon ein Speichern-Fenster offen.");
+  dlMsg("Speichern hat nicht geklappt. Foto gedrückt halten und „Bild sichern“ wählen.");
+}
+async function saveAll(btn){
+  const files = allPhotos(); if (!files.length || !canDownload()) return;
+  btn.disabled = true; dlMsg("Wird gepackt …");
+  try {
+    if (window.JSZip){
+      const zip = new JSZip();
+      for (const f of files) zip.file(f.name, await fileBlob(f));
+      const data = await zip.generateAsync({ type:"blob" });
+      dlMsg("");
+      const r = await saveFile(`Trinkwuerfel-${new Date().toISOString().slice(0,10)}.zip`, data);
+      if (r && r.status === "saved") dlMsg("Gespeichert. Die ZIP-Datei liegt bei deinen Downloads.");
+    } else {
+      for (const f of files) await saveFile(f.name.split("/").pop(), await fileBlob(f));
+      dlMsg("Gespeichert.");
+    }
+  } catch(e){ dlError(e); }
+  btn.disabled = false;
+}
+async function saveOne(photoId){
+  const f = allPhotos().find(x => x.proof && x.proof.photo === photoId); if (!f) return;
+  try { await saveFile(f.name.split("/").pop(), await fileBlob(f)); } catch(e){ dlError(e); }
+}
+
+/* ---- Bedienung ---- */
+function armed(btn){
+  if (!btn.dataset.confirm || btn.dataset.armed === "1") return true;
+  btn.dataset.armed = "1"; const orig = btn.innerHTML; btn.textContent = btn.dataset.confirm;
+  setTimeout(() => { if (btn.isConnected){ btn.dataset.armed = ""; btn.innerHTML = orig; } }, 3200);
+  return false;
+}
+let wakeLock = null;
+async function keepAwake(){ try { if ("wakeLock" in navigator && document.visibilityState === "visible") wakeLock = await navigator.wakeLock.request("screen"); } catch(e){} }
+document.addEventListener("visibilitychange", () => { if (state.phase === "game") keepAwake(); });
+function wipeProofs(){ state.proofs.forEach(x => { dropPhoto(x.photo); (x.frames || []).forEach(dropPhoto); }); state.proofs = []; }
+
+document.addEventListener("click", async e => {
+  const el = e.target.closest("[data-act]"); if (!el) return;
+  const act_ = el.dataset.act;
+  if (act_ === "close-sheet"){ if (e.target === el || el.tagName === "BUTTON") closeSheet(); return; }
+  if (act_ === "fx-skip"){ if (fxRoot.dataset.recap){ delete fxRoot.dataset.recap; } fxDone(); return; }
+  const S = state.settings;
+  switch (act_){
+    case "sw": {
+      const k = el.dataset.k;
+      if (k === "ko") S.ko = !S.ko; else if (k === "cards") S.cards = !S.cards; else if (k.startsWith("a_")) S.addons[k.slice(2)] = !S.addons[k.slice(2)];
+      savePrefs(); save(); const y = window.scrollY; render(); window.scrollTo(0, y); break;
+    }
+    case "order": S.order = el.dataset.k; savePrefs(); save(); { const y = window.scrollY; render(); window.scrollTo(0, y); } break;
+    case "hearts": S.hearts = +el.dataset.k; savePrefs(); save(); { const y = window.scrollY; render(); window.scrollTo(0, y); } break;
+    case "gtype": {
+      state.config[+el.dataset.i].type = el.dataset.t; savePrefs(); save();
+      const open = document.getElementById("glass-card").open; const y = window.scrollY; render(); document.getElementById("glass-card").open = open; window.scrollTo(0, y); break;
+    }
+    case "start-join": countEvent("spiel-gestartet", "Spiel gestartet"); act(() => eStartJoin()); draft = { name:"", photo:null }; render(); window.scrollTo(0,0); setTimeout(() => { const n = document.getElementById("join-name"); n && n.focus(); }, 60); break;
+    case "to-intro": state.phase = "intro"; state.joining = false; save(); render(); break;
+    case "selfie": { const d = await pickPhoto(true, { max:320, square:true }); if (d){ draft.photo = d; render(); } break; }
+    case "all-in": act(() => eAllIn()); keepAwake(); break;
+    case "peek-done": act(() => ePeekDone()); break;
+    case "roll": doRoll(); break;
+    case "confirm": act(() => eConfirm()); window.scrollTo(0,0); break;
+    case "card": {
+      const r = act(() => ePlayCard());
+      if (r === "none") toast("Du hast keine Karte"); else if (r === "mismatch") toast("Deine Karte passt hier nicht");
+      break;
+    }
+    case "konter": konterSheet(); break;
+    case "konter-by": {
+      const r = act(() => eKonter(el.dataset.id));
+      if (r === "ok"){ closeSheet(); break; }
+      const nm = P(el.dataset.id) ? P(el.dataset.id).name : "";
+      const sh = sheetRoot.querySelector(".sheet");
+      if (sh){ sh.innerHTML = `<div class="msg">${esc(nm)}: ${r === "mismatch" ? "Deine Karte passt hier nicht." : "Du hast keine Karte."}</div>`; setTimeout(closeSheet, 1600); }
+      break;
+    }
+    case "joker": act(() => eJoker()); break;
+    case "pick": act(() => ePickPlayer(el.dataset.id)); break;
+    case "proof": takeProof(); break;
+    case "undo": if (undoStack.length && !rolling){ state = JSON.parse(undoStack.pop()); fxQ.length = 0; fxDone(); loadPhotos(); save(); closeSheet(); render(); } break;
+    case "board": openSheet("Rangliste", rankRows()); break;
+    case "history": historySheet(); break;
+    case "rules": rulesSheet(); break;
+    case "menu": menuSheet(); break;
+    case "player": playerSheet(el.dataset.id); break;
+    case "leave": if (!armed(el)) return; closeSheet(); act(() => eLeave(el.dataset.id)); break;
+    case "rejoin": closeSheet(); act(() => eRejoin(el.dataset.id)); break;
+    case "rephoto": {
+      const p = P(el.dataset.id); if (!p) return;
+      const d = await pickPhoto(true, { max:320, square:true });
+      if (d){ const id = "av_" + uid(); savePhoto(id, d); if (p.photo) dropPhoto(p.photo); p.photo = id; save(); render(); playerSheet(p.id); }
+      break;
+    }
+    case "end": closeSheet(); act(() => eEnd()); window.scrollTo(0, 0); break;
+    case "resume": {
+      state.phase = "game"; state.recapPending = false;
+      if (!cur() || !cur().active){ const ni = nextIndex(state.turn); if (ni >= 0) state.turn = ni; }
+      save(); render(); keepAwake(); break;
+    }
+    case "recap": fxQ.push({ type:"recap" }); pumpFx(); break;
+    case "rematch": wipeProofs(); act(() => eRematch()); window.scrollTo(0, 0); keepAwake(); break;
+    case "reset": {
+      if (!armed(el)) return;
+      wipeProofs(); state.players.forEach(p => p.photo && dropPhoto(p.photo));
+      const keep = { settings:state.settings, config:state.config };
+      state = fresh(); state.settings = keep.settings; state.config = keep.config;
+      draft = { name:"", photo:null }; undoStack = []; fxQ.length = 0; fxDone(); save(); closeSheet(); render(); window.scrollTo(0, 0); break;
+    }
+    case "save-all": saveAll(el); break;
+    case "save-one": saveOne(el.dataset.ph); break;
+  }
+});
+/* Gläser antippen (Sabotage / Tausch) */
+document.addEventListener("click", e => {
+  const g = e.target.closest(".app.game .g.pickable"); if (!g) return;
+  act(() => ePickGlass(+g.dataset.i));
+});
+document.addEventListener("keydown", e => { if ((e.key === "Enter" || e.key === " ") && e.target.id === "die"){ e.preventDefault(); doRoll(); } });
+document.addEventListener("input", e => {
+  const gc = e.target.dataset && e.target.dataset.gc;
+  if (gc !== undefined){ state.config[+gc].content = e.target.value.slice(0,24); savePrefs(); save(); }
+});
+document.addEventListener("submit", async e => {
+  e.preventDefault();
+  if (e.target.id === "join-form"){
+    const name = draft.name.trim(); if (!name) return;
+    let pid = null; if (draft.photo){ pid = "av_" + uid(); savePhoto(pid, draft.photo); }
+    draft = { name:"", photo:null };
+    act(() => eJoin(name, pid)); window.scrollTo(0, 0); buzz(25); keepAwake();
+  }
+  if (e.target.id === "add-form"){
+    const inp = document.getElementById("add-name"); const name = inp.value.trim();
+    if (!name){ inp.focus(); return; }
+    const d = await pickPhoto(true, { max:320, square:true });
+    let pid = null; if (d){ pid = "av_" + uid(); savePhoto(pid, d); }
+    closeSheet(); act(() => eAdd(name, pid));
+  }
+});
+
+/* ---- Start ---- */
+function boot(data){
+  let loaded = data && data.state;
+  if (!loaded){ const raw = LS.get("tw_state"); if (raw){ try { loaded = JSON.parse(raw); } catch(e){} } }
+  if (loaded && loaded.v === 3 && Array.isArray(loaded.players)) state = Object.assign(fresh(), loaded);
+  if (state.phase === "game" && !cur()) state.phase = state.players.length ? "end" : "intro";
+  if (state.phase === "peek" && !state.peekQueue.length) state.phase = "game";
+  if (state.phase === "end" && !state.players.length) state.phase = "intro";
+  state.recapPending = false; state.spin = null;
+  loadPhotos(); render();
+  if (state.phase === "game") keepAwake();
+}
+
+/* Test-Zugang (für automatisierte Tests, ohne Einfluss aufs Spiel) */
+window.__tw = {
+  get state(){ return state; }, set state(v){ state = v; },
+  setHeadless(v){ headless = !!v; }, fxQ, rnd6, rndInt, makeGif, lzw, photos,
+  E:{ startJoin:eStartJoin, join:eJoin, peekDone:ePeekDone, allIn:eAllIn, roll:eRoll, confirm:eConfirm, joker:eJoker, canJoker, playCard:ePlayCard,
+      pickPlayer:ePickPlayer, pickGlass:ePickGlass, pickTargets, konter:eKonter, leave:eLeave, rejoin:eRejoin, add:eAdd, end:eEnd, rematch:eRematch },
+  render(){ render(); pumpFx(); }, undoStack:() => undoStack
+};
+try { window.claude?.hot?.snapshot?.(() => ({ state })); } catch(e){}
+window.claude?.hot?.ready ? window.claude.hot.ready(boot) : boot(window.claude?.hot?.data ?? {});
+})();
+</script>
+
+</body></html>
